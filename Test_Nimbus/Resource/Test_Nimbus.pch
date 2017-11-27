@@ -1,0 +1,20 @@
+//
+//  Test_Nimbus.pch
+//  Test_Nimbus
+//
+//  Created by CPU12068 on 11/23/17.
+//  Copyright © 2017 CPU12068. All rights reserved.
+//
+
+#ifndef Test_Nimbus_pch
+#define Test_Nimbus_pch
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
+#import "NimbusCore.h"
+#import "Constaint.h"
+
+
+
+#endif /* Test_Nimbus_pch */

@@ -1,0 +1,18 @@
+PODS:
+  - BEMCheckBox (1.4.1)
+  - DGActivityIndicatorView (2.1.1)
+  - Masonry (1.1.0)
+
+DEPENDENCIES:
+  - BEMCheckBox
+  - DGActivityIndicatorView
+  - Masonry
+
+SPEC CHECKSUMS:
+  BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
+  DGActivityIndicatorView: ff2c76073d79692f724863c8dd38685866a03cb6
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+
+PODFILE CHECKSUM: 2b5f4cefd067f8127fd237a3b9d2c2810d4fba25
+
+COCOAPODS: 1.3.1
