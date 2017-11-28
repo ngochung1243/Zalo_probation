@@ -45,6 +45,20 @@
     return destImage;
 }
 
++ (UIImage *)thumbnailImageWithData:(NSData *)imageData andSize:(CGFloat)maxPixelSize {
+    CGImageSourceRef src = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
+    CFDictionaryRef options = (__bridge CFDictionaryRef) @{
+                                                           (id) kCGImageSourceCreateThumbnailWithTransform : @YES,
+                                                           (id) kCGImageSourceCreateThumbnailFromImageAlways : @YES,
+                                                           (id) kCGImageSourceThumbnailMaxPixelSize : @(maxPixelSize)
+                                                           };
+    
+    CGImageRef scaledImageRef = CGImageSourceCreateThumbnailAtIndex(src, 0, options);
+    UIImage *scaled = [UIImage imageWithCGImage:scaledImageRef];
+    CGImageRelease(scaledImageRef);
+    return scaled;
+}
+
 - (UIImage *)circleWithSize:(CGSize)size {
     UIGraphicsBeginImageContextWithOptions(size, NO, 1);
     CGRect rect = CGRectMake(0, 0, size.width, size.height);
@@ -53,6 +67,11 @@
     UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return destImage;
+}
+
+- (UIImage *)thumbnailWithSize:(CGFloat)maxPixelSize {
+    NSData *imageData = UIImagePNGRepresentation(self);
+    return [UIImage thumbnailImageWithData:imageData andSize:maxPixelSize];
 }
 
 @end

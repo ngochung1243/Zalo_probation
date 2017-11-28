@@ -32,9 +32,9 @@
         _firstName = contact.givenName;
         _lastName = contact.familyName;
         if (contact.imageData) {
-            _imageData = [UIImage imageWithData:contact.imageData];
+            _imageData = [[UIImage thumbnailImageWithData:contact.imageData andSize:AvatarSize.width] circleWithSize:AvatarSize];
         } else if (contact.thumbnailImageData) {
-            _imageData = [UIImage imageWithData:contact.thumbnailImageData];
+            _imageData = [[UIImage thumbnailImageWithData:contact.thumbnailImageData andSize:AvatarSize.width] circleWithSize:AvatarSize];
         } else {
             _imageData = [UIImage letterImageWithString:contact.fullName textColor:UIColor.whiteColor andBackgroundColor:nil withSize:AvatarSize];
         }

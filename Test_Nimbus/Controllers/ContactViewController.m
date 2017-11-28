@@ -128,11 +128,12 @@
     [groupContactArray addObject:contact];
 }
 
+//Prepare data for NITableViewModel
 - (NSArray *)makeCellContentArrayWithGroupCellDictionary:(NSMutableDictionary *)groupCellDict {
     NSMutableArray *cellContent = [NSMutableArray new];
     NSArray *allGroupKey = [groupCellDict allKeys]; //Get all characters section
     
-    //Sort alphabet character
+    //Sort alphabet characters
     allGroupKey = [allGroupKey sortedArrayUsingComparator:^NSComparisonResult(NSString *  _Nonnull obj1, NSString *  _Nonnull obj2) {
         return [obj1 compare:obj2];
     }];
@@ -195,7 +196,7 @@
 - (id)makeActionWithContact:(ContactModel *)contact {
     return [_actions attachToObject:[ContactTableObject objectWithContact:contact] tapBlock:^BOOL(ContactTableObject* object, id target, NSIndexPath *indexPath) {
         UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-        if (cell.isSelected) {
+        if (cell.isSelected) { //Add contact to target array and show contact bar view if need
             if (_contactBarView.pickContacts.count == 0) {
                 [_contactBarView mas_updateConstraints:^(MASConstraintMaker *make) {
                     make.height.mas_equalTo(ContactBarViewHeight);
@@ -205,7 +206,7 @@
                 }];
             }
             [_contactBarView pickContact:object.object];
-        } else {
+        } else { //Remove contact from target array and hide contact bar view if need
             [_contactBarView unpickContact:object.object];
             if (_contactBarView.pickContacts.count == 0) {
                 [_contactBarView mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -244,6 +245,7 @@
 
 @implementation ContactModelDelegate
 
+//Allow data source can edit
 + (BOOL)tableViewModel:(NIMutableTableViewModel *)tableViewModel canEditObject:(id)object atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView {
     return YES;
 }
@@ -252,6 +254,7 @@
 
 @implementation ContactTableViewModel
 
+//Check targeted contacts when filtering by search
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
     ContactTableObject *object = [self objectAtIndexPath:indexPath];
