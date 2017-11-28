@@ -34,6 +34,7 @@
 		E508BF7F1FC6A04B009DDFE2 /* NIInMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF651FC6A04A009DDFE2 /* NIInMemoryCache.m */; };
 		E508BF801FC6A04B009DDFE2 /* NIFoundationMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF671FC6A04A009DDFE2 /* NIFoundationMethods.m */; };
 		E508BF811FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF6D1FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m */; };
+		E50CC2EC1FCD75A3003CA919 /* BaseTableViewAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = E50CC2EB1FCD75A3003CA919 /* BaseTableViewAdapter.m */; };
 		E521C1DA1FC6B0D7001EAC12 /* NIMutableTableViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E521C1C41FC6B0D6001EAC12 /* NIMutableTableViewModel.m */; };
 		E521C1DB1FC6B0D7001EAC12 /* NICellCatalog.m in Sources */ = {isa = PBXBuildFile; fileRef = E521C1C71FC6B0D6001EAC12 /* NICellCatalog.m */; };
 		E521C1DC1FC6B0D7001EAC12 /* NICellBackgrounds.m in Sources */ = {isa = PBXBuildFile; fileRef = E521C1CC1FC6B0D6001EAC12 /* NICellBackgrounds.m */; };
@@ -125,6 +126,8 @@
 		E508BF6C1FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NINonEmptyCollectionTesting.h; path = nimbus/src/core/src/NINonEmptyCollectionTesting.h; sourceTree = SOURCE_ROOT; };
 		E508BF6D1FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NINonEmptyCollectionTesting.m; path = nimbus/src/core/src/NINonEmptyCollectionTesting.m; sourceTree = SOURCE_ROOT; };
 		E508BF821FC6A0ED009DDFE2 /* Test_Nimbus.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Test_Nimbus.pch; sourceTree = "<group>"; };
+		E50CC2EA1FCD75A3003CA919 /* BaseTableViewAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseTableViewAdapter.h; sourceTree = "<group>"; };
+		E50CC2EB1FCD75A3003CA919 /* BaseTableViewAdapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseTableViewAdapter.m; sourceTree = "<group>"; };
 		E521C1C41FC6B0D6001EAC12 /* NIMutableTableViewModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NIMutableTableViewModel.m; path = nimbus/src/models/src/NIMutableTableViewModel.m; sourceTree = SOURCE_ROOT; };
 		E521C1C51FC6B0D6001EAC12 /* NIRadioGroupController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NIRadioGroupController.h; path = nimbus/src/models/src/NIRadioGroupController.h; sourceTree = SOURCE_ROOT; };
 		E521C1C61FC6B0D6001EAC12 /* NICellFactory+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NICellFactory+Private.h"; path = "nimbus/src/models/src/NICellFactory+Private.h"; sourceTree = SOURCE_ROOT; };
@@ -241,6 +244,7 @@
 		E508BF241FC69B74009DDFE2 /* Test_Nimbus */ = {
 			isa = PBXGroup;
 			children = (
+				E50CC2E91FCD754E003CA919 /* Adapter */,
 				E5EDAFD61FC7DAE70030EDD6 /* Controllers */,
 				E5EDAFD41FC7DAC70030EDD6 /* Views */,
 				E5F09A0D1FCBA45700048FD3 /* Models */,
@@ -316,6 +320,15 @@
 				E508BF4C1FC6A048009DDFE2 /* UIResponder+NimbusCore.m */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		E50CC2E91FCD754E003CA919 /* Adapter */ = {
+			isa = PBXGroup;
+			children = (
+				E50CC2EA1FCD75A3003CA919 /* BaseTableViewAdapter.h */,
+				E50CC2EB1FCD75A3003CA919 /* BaseTableViewAdapter.m */,
+			);
+			path = Adapter;
 			sourceTree = "<group>";
 		};
 		E521C1C31FC6B087001EAC12 /* Model */ = {
@@ -652,6 +665,7 @@
 				E521C1DD1FC6B0D7001EAC12 /* NICellFactory.m in Sources */,
 				E508BF811FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m in Sources */,
 				E5F09A161FCBA6A500048FD3 /* DataFactory.m in Sources */,
+				E50CC2EC1FCD75A3003CA919 /* BaseTableViewAdapter.m in Sources */,
 				E57DB92A1FCBF65F008587EE /* ContactModel.m in Sources */,
 				E5F09A101FCBA4A400048FD3 /* BaseModel.m in Sources */,
 				E521C1DA1FC6B0D7001EAC12 /* NIMutableTableViewModel.m in Sources */,
