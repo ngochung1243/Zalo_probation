@@ -12,7 +12,7 @@
 
 @implementation Z_NITableViewModel
 
-- (id)objectWithObjectValue:(id)value {
+- (NSIndexPath *)indexPathWithObjectValue:(id)value {
     if (nil == value) {
         return nil;
     }

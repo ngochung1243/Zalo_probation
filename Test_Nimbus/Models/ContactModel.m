@@ -13,8 +13,22 @@
 
 @implementation ContactModel
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _firstName = @"";
+        _lastName = @"";
+        _imageData = nil;
+    }
+    return self;
+}
+
 - (instancetype)initWithCNContact:(CNContact *)contact {
-    if (self = [super init]) {
+    if (self = [self init]) {
+        if (!contact) {
+            return self;
+        }
         _firstName = contact.givenName;
         _lastName = contact.familyName;
         if (contact.imageData) {

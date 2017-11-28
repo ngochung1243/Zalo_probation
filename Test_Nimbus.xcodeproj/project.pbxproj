@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5C45C24C735C17BB0459DDD9 /* libPods-Test_Nimbus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FF9034A941D5FA6F68821235 /* libPods-Test_Nimbus.a */; };
+		E508B2971FCD05B2006207F8 /* TransparentSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = E508B2961FCD05B2006207F8 /* TransparentSearchBar.m */; };
 		E508BF271FC69B74009DDFE2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF261FC69B74009DDFE2 /* AppDelegate.m */; };
 		E508BF2D1FC69B74009DDFE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E508BF2B1FC69B74009DDFE2 /* Main.storyboard */; };
 		E508BF2F1FC69B74009DDFE2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E508BF2E1FC69B74009DDFE2 /* Assets.xcassets */; };
@@ -68,6 +69,8 @@
 /* Begin PBXFileReference section */
 		084F7E65B8FD12D4EBD4744B /* Pods-Test_Nimbus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Test_Nimbus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Test_Nimbus/Pods-Test_Nimbus.release.xcconfig"; sourceTree = "<group>"; };
 		5BB327A6784A5220F272C072 /* Pods-Test_Nimbus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Test_Nimbus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Test_Nimbus/Pods-Test_Nimbus.debug.xcconfig"; sourceTree = "<group>"; };
+		E508B2951FCD05B2006207F8 /* TransparentSearchBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TransparentSearchBar.h; sourceTree = "<group>"; };
+		E508B2961FCD05B2006207F8 /* TransparentSearchBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TransparentSearchBar.m; sourceTree = "<group>"; };
 		E508BF221FC69B74009DDFE2 /* Test_Nimbus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test_Nimbus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E508BF251FC69B74009DDFE2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E508BF261FC69B74009DDFE2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -238,11 +241,12 @@
 		E508BF241FC69B74009DDFE2 /* Test_Nimbus */ = {
 			isa = PBXGroup;
 			children = (
-				E5F09A0D1FCBA45700048FD3 /* Models */,
-				E5F09A0C1FCBA43100048FD3 /* Utils */,
 				E5EDAFD61FC7DAE70030EDD6 /* Controllers */,
 				E5EDAFD41FC7DAC70030EDD6 /* Views */,
-				E521C1F21FC6DFD0001EAC12 /* Categorys */,
+				E5F09A0D1FCBA45700048FD3 /* Models */,
+				E57DB92B1FCC2E58008587EE /* NI Custom */,
+				E5F09A0C1FCBA43100048FD3 /* Utils */,
+				E521C1F21FC6DFD0001EAC12 /* Category */,
 				E5EDAFF21FC7F79A0030EDD6 /* Define */,
 				E5EDAFDD1FC7DB3A0030EDD6 /* Resource */,
 				E508BF251FC69B74009DDFE2 /* AppDelegate.h */,
@@ -364,7 +368,7 @@
 			path = Interapp;
 			sourceTree = "<group>";
 		};
-		E521C1F21FC6DFD0001EAC12 /* Categorys */ = {
+		E521C1F21FC6DFD0001EAC12 /* Category */ = {
 			isa = PBXGroup;
 			children = (
 				E521C1F31FC6E08B001EAC12 /* CNContact+Utils.h */,
@@ -376,7 +380,7 @@
 				E57DB9251FCBE966008587EE /* UIColor+Utils.h */,
 				E57DB9261FCBE966008587EE /* UIColor+Utils.m */,
 			);
-			path = Categorys;
+			path = Category;
 			sourceTree = "<group>";
 		};
 		E57DB92B1FCC2E58008587EE /* NI Custom */ = {
@@ -400,9 +404,10 @@
 		E5EDAFD41FC7DAC70030EDD6 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				E57DB92B1FCC2E58008587EE /* NI Custom */,
 				E5EDAFFD1FC818BD0030EDD6 /* ContactBarView.h */,
 				E5EDAFFE1FC818BD0030EDD6 /* ContactBarView.m */,
+				E508B2951FCD05B2006207F8 /* TransparentSearchBar.h */,
+				E508B2961FCD05B2006207F8 /* TransparentSearchBar.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -674,6 +679,7 @@
 				E5EDAFDB1FC7DB040030EDD6 /* CatalogViewController.m in Sources */,
 				E5EDAFFF1FC818BD0030EDD6 /* ContactBarView.m in Sources */,
 				E508BF801FC6A04B009DDFE2 /* NIFoundationMethods.m in Sources */,
+				E508B2971FCD05B2006207F8 /* TransparentSearchBar.m in Sources */,
 				E521C1E21FC6B0D7001EAC12 /* NITableViewActions.m in Sources */,
 				E508BF271FC69B74009DDFE2 /* AppDelegate.m in Sources */,
 				E508BF761FC6A04B009DDFE2 /* NIButtonUtilities.m in Sources */,

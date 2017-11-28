@@ -10,6 +10,6 @@
 
 @interface Z_NITableViewModel : NIMutableTableViewModel
 
-- (id)objectWithObjectValue:(id)value; //Get object from NIDrawRectBlockCellObject "object" attribute
+- (NSIndexPath *)indexPathWithObjectValue:(id)value; //Get object from NIDrawRectBlockCellObject "object" attribute
 
 @end

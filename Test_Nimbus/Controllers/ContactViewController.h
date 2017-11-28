@@ -13,6 +13,7 @@
 #import "ContactBarView.h"
 #import "ContactTableObject.h"
 #import "Z_NITableViewModel.h"
+#import "TransparentSearchBar.h"
 
 #pragma mark - Inheritant
 
@@ -31,7 +32,7 @@
 @property(strong, nonatomic) NITableViewActions *actions;
 @property(strong, nonatomic) ContactTableViewModel *modelDataSource;
 @property(strong, nonatomic) ContactBarView *contactBarView;
-@property(strong, nonatomic) UISearchBar *searchBar;
+@property(strong, nonatomic) TransparentSearchBar *searchBar;
 @property(strong, nonatomic) UITableView *tableView;
 
 @end

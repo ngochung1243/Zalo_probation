@@ -33,16 +33,17 @@
     self = [super init];
     if (self) {
         self.title = @"Chọn bạn";
-        self.view.backgroundColor = UIColor.whiteColor;
+        self.view.backgroundColor = [UIColor colorWithRed:205.0/255 green:205.0/255 blue:210.0/255 alpha:1];
         _contacts = [NSMutableDictionary new];
         _actions = [[NITableViewActions alloc] initWithTarget:self];
+        
+        //Init and constraint subview
         indicatorView = [[DGActivityIndicatorView alloc] initWithType:DGActivityIndicatorAnimationTypeBallPulse tintColor:UIColor.blueColor];
         indicatorView.frame = CGRectMake(0, 0, 32, 32);
         indicatorView.center = self.view.center;
         [self.tableView addSubview:indicatorView];
         
         _contactBarView = [[ContactBarView alloc] init];
-        _contactBarView.backgroundColor = [UIColor colorWithRed:205.0/255 green:205.0/255 blue:210.0/255 alpha:1];
         _contactBarView.barViewDelegate = self;
         [self.view addSubview:_contactBarView];
         [_contactBarView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -52,8 +53,9 @@
             make.height.mas_equalTo(0);
         }];
         
-        _searchBar = [[UISearchBar alloc] init];
+        _searchBar = [[TransparentSearchBar alloc] init];
         _searchBar.delegate = self;
+        _searchBar.backgroundColor = UIColor.clearColor;
         [self.view addSubview:_searchBar];
         [_searchBar mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(_contactBarView.mas_bottom);
@@ -66,6 +68,8 @@
         _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         _tableView.allowsMultipleSelectionDuringEditing = YES;
         _tableView.allowsMultipleSelection = YES;
+        _tableView.rowHeight = TableCellHeight;
+        _tableView.tableFooterView = [UIView new];
         [_tableView setEditing:YES];
         [self.view addSubview:_tableView];
         [_tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -98,8 +102,10 @@
                              CNContactThumbnailImageDataKey];
     CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:keysToFetch];
     [addressBook enumerateContactsWithFetchRequest:fetchRequest error:nil usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
-        ContactModel *contactModel = [[ContactModel alloc] initWithCNContact:contact];
-        [self groupContact:contactModel withDictionary:_contacts];
+        if (contact) {
+            ContactModel *contactModel = [[ContactModel alloc] initWithCNContact:contact];
+            [self groupContact:contactModel withDictionary:_contacts];
+        }
     }];
     //Prepare data for cells and display
     [self displayData:_contacts];
@@ -107,8 +113,13 @@
 
 //Group contact with first character name
 - (void)groupContact:(ContactModel *)contact withDictionary:(NSMutableDictionary *)dict{
+    //Check params is valid
+    if (!contact || !dict) {
+        return;
+    }
+    
     NSString *fullName = contact.fullName;
-    NSString *firstCharacter = [fullName substringWithRange:NSMakeRange(0, 1)];
+    NSString *firstCharacter = fullName.length >= 1 ? [fullName substringWithRange:NSMakeRange(0, 1)] : @"";
     NSMutableArray *groupContactArray = [dict objectForKey:firstCharacter];
     if (!groupContactArray) {
         groupContactArray = [NSMutableArray new];
@@ -119,16 +130,25 @@
 
 - (NSArray *)makeCellContentArrayWithGroupCellDictionary:(NSMutableDictionary *)groupCellDict {
     NSMutableArray *cellContent = [NSMutableArray new];
-    NSArray *allGroupKey = [groupCellDict allKeys];
+    NSArray *allGroupKey = [groupCellDict allKeys]; //Get all characters section
+    
+    //Sort alphabet character
     allGroupKey = [allGroupKey sortedArrayUsingComparator:^NSComparisonResult(NSString *  _Nonnull obj1, NSString *  _Nonnull obj2) {
         return [obj1 compare:obj2];
     }];
+    
     [allGroupKey enumerateObjectsUsingBlock:^(NSString *  _Nonnull groupKey, NSUInteger idx, BOOL * _Nonnull stop) {
-        [cellContent addObject:groupKey];
-        NSMutableArray *groupContactArray = [groupCellDict objectForKey:groupKey];
-        [groupContactArray enumerateObjectsUsingBlock:^(ContactModel *  _Nonnull contact, NSUInteger idx, BOOL * _Nonnull stop) {
-            [cellContent addObject:[self makeActionWithContact:contact]];
-        }];
+        if ([groupKey isKindOfClass:[NSString class]]) { //warrant group key is a string
+            [cellContent addObject:groupKey];
+            NSMutableArray *groupContactArray = [groupCellDict objectForKey:groupKey];
+            [groupContactArray enumerateObjectsUsingBlock:^(ContactModel *  _Nonnull contact, NSUInteger idx, BOOL * _Nonnull stop) {
+                if ([contact isKindOfClass:[ContactModel class]]) { //warrant contact is a contact model
+                    id object = [self makeActionWithContact:contact];
+                    NSAssert([object isKindOfClass:[NICellObject class]], @"Need to add an instance subclass of UICellObject for content of Table View");
+                    [cellContent addObject:object];
+                }
+            }];
+        }
     }];
     return cellContent;
 }
@@ -142,11 +162,10 @@
     //Render table view in main thread
     dispatch_async(dispatch_get_main_queue(), ^{
         [indicatorView stopAnimating];
-        self.tableView.rowHeight = TableCellHeight;
-        self.tableView.dataSource = _modelDataSource;
-        self.tableView.delegate = [_actions forwardingTo:self];
-        self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
-        [self.tableView reloadData];
+        _tableView.dataSource = _modelDataSource;
+        _tableView.delegate = [_actions forwardingTo:self];
+        _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        [_tableView reloadData];
     });
 }
 
@@ -168,13 +187,6 @@
     }
     
     return filterContactsDict;
-}
-
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSMutableDictionary *filterContactsDict = [self filterContactWithSearchString:searchText];
-        [self displayData:filterContactsDict];
-    });
 }
 
 #pragma mark - Support Funtion
@@ -209,10 +221,18 @@
     }];
 }
 
-#pragma mark - Delegate
+#pragma mark - DELEGATE
+#pragma mark - UISearchBarDelegate
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSMutableDictionary *filterContactsDict = [self filterContactWithSearchString:searchText];
+        [self displayData:filterContactsDict];
+    });
+}
+
+#pragma mark - ContactBarViewDelegate
 - (void)contactBarView:(ContactBarView *)contactBarView didSelectContact:(ContactModel *)contact {
-    NICellObject *object = [_modelDataSource objectWithObjectValue:contact];
-    NSIndexPath *indexPath = [_modelDataSource indexPathForObject:object];
+    NSIndexPath *indexPath = [_modelDataSource indexPathWithObjectValue:contact];
     if (indexPath) {
         [_tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
     }
