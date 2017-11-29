@@ -7,8 +7,8 @@
 //
 
 #import "AppDelegate.h"
-#import "CatalogViewController.h"
-#import "ContactViewController.h"
+#import "HMCatalogViewController.h"
+#import "HMContactViewController.h"
 
 @interface AppDelegate ()
 
@@ -20,8 +20,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = UIColor.whiteColor;
-    CatalogViewController *catalogVC = [[CatalogViewController alloc] init];
-    ContactViewController *contactVC = [[ContactViewController alloc] init];
+    HMCatalogViewController *catalogVC = [[HMCatalogViewController alloc] init];
+    HMContactViewController *contactVC = [[HMContactViewController alloc] init];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:catalogVC];
     [navigationController.navigationBar setTranslucent:NO];
     self.window.rootViewController = navigationController;

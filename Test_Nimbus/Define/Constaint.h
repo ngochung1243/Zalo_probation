@@ -9,6 +9,12 @@
 #ifndef Header_h
 #define Header_h
 
+//Queue constaint
+#define globalDefaultQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+#define globalBackgroundQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+#define globalHighQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)
+#define mainQueue dispatch_get_main_queue()
+
 //Contact constaint
 #define AvatarSize CGSizeMake(50, 50)
 #define AvatarSmallSize CGSizeMake(40, 40)

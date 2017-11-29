@@ -6,9 +6,9 @@
 //  Copyright © 2017 CPU12068. All rights reserved.
 //
 
-#import "TransparentSearchBar.h"
+#import "HMTransparentSearchBar.h"
 
-@implementation TransparentSearchBar
+@implementation HMTransparentSearchBar
 
 - (instancetype)init
 {

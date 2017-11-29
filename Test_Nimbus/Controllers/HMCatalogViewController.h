@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "NimbusModels.h"
 
-@interface CatalogViewController: UITableViewController
+@interface HMCatalogViewController: UITableViewController
 
 @property(strong, nonatomic) NITableViewModel *models;
 @property(strong, nonatomic) NITableViewActions *action;

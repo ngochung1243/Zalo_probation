@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TransparentSearchBar : UISearchBar
+@interface HMTransparentSearchBar : UISearchBar
 
 @end

@@ -6,25 +6,25 @@
 //  Copyright © 2017 CPU12068. All rights reserved.
 //
 
-#import "CatalogViewController.h"
-#import "ContactViewController.h"
+#import "HMCatalogViewController.h"
+#import "HMInviteContactController.h"
 
-@interface CatalogViewController ()
+@interface HMCatalogViewController ()
 
 @end
 
-@implementation CatalogViewController
+@implementation HMCatalogViewController
 
 - (instancetype)init
 {
     self = [super initWithStyle:UITableViewStyleGrouped];
     if (self) {
-        self.title = @"Catalog";
+        self.title = NSLocalizedString(@"Catalog", nil);
         
         _action = [[NITableViewActions alloc] initWithTarget:self];
-        NSArray *cellContent = @[@"View controller", [_action attachToObject:
-                                                      [NITitleCellObject objectWithTitle:@"Contact"]
-                                                            navigationBlock:NIPushControllerAction([ContactViewController class])]];
+        NSArray *cellContent = @[NSLocalizedString(@"View Controllers", nil), [_action attachToObject:
+                                                      [NITitleCellObject objectWithTitle:NSLocalizedString(@"Contact", nil)]
+                                                            navigationBlock:NIPushControllerAction([HMInviteContactController class])]];
         _models = [[NITableViewModel alloc] initWithSectionedArray:cellContent delegate:(id)[NICellFactory class]];
         
     }

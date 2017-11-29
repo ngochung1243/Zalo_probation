@@ -9,18 +9,18 @@
 #import <Foundation/Foundation.h>
 #import "NimbusCollections.h"
 #import <Contacts/Contacts.h>
-#import "ContactModel.h"
+#import "HMContactModel.h"
 #import "Constaint.h"
 
-@interface ContactCollectionObject : NSObject <NICollectionViewCellObject>
+@interface HMContactCollectionObject : NSObject <NICollectionViewCellObject>
 
-@property(strong, nonatomic) ContactModel *contact;
+@property(strong, nonatomic) HMContactModel *contact;
 
-+ (instancetype)objectWithContact:(ContactModel *)contact;
++ (instancetype)objectWithContact:(HMContactModel *)contact;
 
 @end
 
-@interface ContactCollectionCell: UICollectionViewCell <NICollectionViewCell>
+@interface HMContactCollectionCell: UICollectionViewCell <NICollectionViewCell>
 
 @property(strong, nonatomic) UIImageView *avatarImageView;
 

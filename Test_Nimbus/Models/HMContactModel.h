@@ -7,16 +7,21 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "BaseModel.h"
+#import "HMBaseModel.h"
 #import <Contacts/Contacts.h>
 
-@interface ContactModel : BaseModel
+@protocol HMContactModel <NSObject>
+
++ (instancetype)modelWithContact:(CNContact *)contact;
+- (NSString *)groupName;
+
+@end
+
+@interface HMContactModel : HMBaseModel <HMContactModel>
 
 @property(strong, nonatomic) NSString *firstName;
 @property(strong, nonatomic) NSString *lastName;
 @property(strong, nonatomic) UIImage *imageData;
 @property(getter=fullname, readonly) NSString *fullName;
-
-- (instancetype)initWithCNContact:(CNContact *)contact;
 
 @end
