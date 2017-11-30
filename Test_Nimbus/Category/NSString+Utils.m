@@ -21,7 +21,7 @@
     if (firstPart == lastPart) {
         return [[firstPart substringToIndex:MIN(2, firstPart.length)] uppercaseString];
     } else {
-        return [[NSString stringWithFormat:@"%c%c", [firstPart characterAtIndex:0], [lastPart characterAtIndex:0]] uppercaseString];
+        return [[NSString stringWithFormat:@"%C%C", [firstPart characterAtIndex:0], [lastPart characterAtIndex:0]] uppercaseString];
     }
     return @"";
 }

@@ -16,6 +16,8 @@
 
 #define ContactBarViewHeight        60
 #define SearchBarHeight             45
+#define TimeIntervalRequest         1
+#define PickerViewPadding           UIEdgeInsetsMake(0, 10, 0, 10)
 
 @implementation HMInviteContactController
 
@@ -23,6 +25,7 @@
     [super viewDidLoad];
     _contacts = [NSMutableArray new];
     self.view.backgroundColor = [UIColor colorWithRed:205.0/255 green:205.0/255 blue:210.0/255 alpha:1];
+    [contactAdapter addDelegate:self];
     
     _headerView = [[UIView alloc] init];
     _headerView.backgroundColor = UIColor.clearColor;
@@ -68,18 +71,27 @@
     [self addChildViewController:_pickedContactVC];
     [_headerView addSubview:_pickedContactVC.view];
     [_pickedContactVC.view mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(_headerView).insets(UIEdgeInsetsMake(0, 10, 0, 10));
+        make.edges.equalTo(_headerView).insets(PickerViewPadding);
     }];
     
-    [self loadContact];
+    [self loadContactWithCompletion:nil];
 }
 
-- (void)loadContact {
-    [_contacts removeAllObjects];
+- (void)loadContactWithCompletion:(void(^)(BOOL))completionBlock {
+    if ([contactAdapter hasAlreadyData]) {
+        [_contacts addObjectsFromArray:[contactAdapter getAlreadyContacts]];
+        [_contactVC setData:_contacts];
+        if (completionBlock) {
+            completionBlock(YES);
+        }
+        
+        return;
+    }
     
-    [contactAdapter requestPermissionInQueue:globalDefaultQueue completion:^(BOOL granted, NSError *error) {
+    [contactAdapter requestPermissionInQueue:mainQueue completion:^(BOOL granted, NSError *error) {
         if (granted) {
-            [self getAllContacts];
+//            [self getAllContactsWithCompletion:completionBlock];
+            [self getAllContactsSequence];
             return;
         }
         
@@ -106,19 +118,34 @@
                 default:
                     break;
             }
-            return;
+            
+            completionBlock(NO);
         }
     }];
 }
 
-- (void)getAllContacts {
-    [contactAdapter getAllContactsInQueue:globalDefaultQueue modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
+- (void)getAllContactsWithCompletion:(void(^)(BOOL))completionBlock {
+    [_contacts removeAllObjects];
+    [contactAdapter getAllContactsInQueue:mainQueue modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
         if (!error) {
             [_contacts addObjectsFromArray:contactModels];
             [_contactVC setData:contactModels];
+            completionBlock(YES);
         } else {
             //Handle error;
+            completionBlock(NO);
         }
+    }];
+}
+
+- (void)getAllContactsSequence {
+    [contactAdapter getAllContactsSequenceInQueue:mainQueue
+                                       modelClass:[HMContactModel class]
+                                    sequenceCount:50
+                                         sequence:^(NSArray *contactModels) {
+        [_contactVC addData:contactModels];
+    } completion:^(NSError *error) {
+        return;
     }];
 }
 
@@ -176,6 +203,13 @@
 #pragma mark - HMPickedContactDelegate
 - (void)hmPickedContactController:(HMPickedContactController *)pickedController didSelectModel:(id)model {
     [_contactVC scrollToModel:model];
+}
+
+#pragma mark - HMContactAdapterDelegate
+- (void)hmContactAdapter:(HMContactAdapter *)adapter didReceiveContactsRequently:(NSArray *)contacts {
+    [_contacts removeAllObjects];
+    [_contacts addObjectsFromArray:contacts];
+    [_contactVC setData:_contacts];
 }
 
 @end

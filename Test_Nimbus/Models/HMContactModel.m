@@ -17,6 +17,7 @@
 {
     self = [super init];
     if (self) {
+        _identifier = @"";
         _firstName = @"";
         _lastName = @"";
         _imageData = nil;
@@ -30,26 +31,42 @@
         if (!contact) {
             return model;
         }
+        model.identifier = contact.identifier;
         model.firstName = contact.givenName;
         model.lastName = contact.familyName;
-        if (contact.imageData) {
-            model.imageData = [[UIImage thumbnailImageWithData:contact.imageData andSize:AvatarSize.width] circleWithSize:AvatarSize];
-        } else if (contact.thumbnailImageData) {
-            model.imageData = [[UIImage thumbnailImageWithData:contact.thumbnailImageData andSize:AvatarSize.width] circleWithSize:AvatarSize];
-        } else {
-            model.imageData = [UIImage letterImageWithString:contact.fullName textColor:UIColor.whiteColor andBackgroundColor:nil withSize:AvatarSize];
+        model.groupName = [model getGroupName];
+        if (contact.thumbnailImageData) {
+            model.imageData = contact.thumbnailImageData;
+        } else if (contact.imageData) {
+            model.imageData = contact.imageData;
         }
     }
     return model;
 }
 
 - (NSString *)fullname {
-    return [NSString stringWithFormat:@"%@%@%@", _firstName, ![_lastName isEqualToString:@""] ? @" " : @"", _lastName];
+    NSString *fullName = [NSString stringWithFormat:@"%@%@%@", _firstName, ![_lastName isEqualToString:@""] ? @" " : @"", _lastName];
+    fullName = [fullName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return fullName;
 }
 
 - (NSString *)groupName {
+    return _groupName;
+}
+
+- (NSString *)getGroupName {
     NSString *fullName = [self fullname];
-    return fullName.length > 0 ? [fullName substringToIndex:1] : @"";
+    NSString *gName;
+    if (fullName.length > 0) {
+        unichar c = [fullName characterAtIndex:0];
+        gName = [NSString stringWithFormat:@"%C", c];
+    }
+    gName = [gName stringByReplacingOccurrencesOfString:@"đ" withString:@"d"];
+    gName = [gName stringByReplacingOccurrencesOfString:@"Đ" withString:@"D"];
+    NSData *decode = [gName dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    gName = [[NSString alloc] initWithData:decode encoding:NSASCIIStringEncoding];
+    gName = [gName uppercaseString];
+    return gName;
 }
 
 @end

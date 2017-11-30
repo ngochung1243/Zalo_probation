@@ -68,6 +68,9 @@
 		E5F09A101FCBA4A400048FD3 /* HMBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F09A0F1FCBA4A400048FD3 /* HMBaseModel.m */; };
 		E5F09A161FCBA6A500048FD3 /* DataFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F09A151FCBA6A500048FD3 /* DataFactory.m */; };
 		E5F09A191FCBA6E400048FD3 /* FileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F09A181FCBA6E400048FD3 /* FileUtils.m */; };
+		E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E0C1FCF9B880001577F /* UIImageView+Utils.m */; };
+		E5F32E111FCFADF60001577F /* HMImageMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */; };
+		E5F32E141FCFE5460001577F /* HMContactQueueEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -207,6 +210,12 @@
 		E5F09A151FCBA6A500048FD3 /* DataFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DataFactory.m; sourceTree = "<group>"; };
 		E5F09A171FCBA6E400048FD3 /* FileUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		E5F09A181FCBA6E400048FD3 /* FileUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileUtils.m; sourceTree = "<group>"; };
+		E5F32E0B1FCF9B880001577F /* UIImageView+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImageView+Utils.h"; sourceTree = "<group>"; };
+		E5F32E0C1FCF9B880001577F /* UIImageView+Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+Utils.m"; sourceTree = "<group>"; };
+		E5F32E0F1FCFADF60001577F /* HMImageMemoryCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMImageMemoryCache.h; sourceTree = "<group>"; };
+		E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMImageMemoryCache.m; sourceTree = "<group>"; };
+		E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactQueueEntity.h; sourceTree = "<group>"; };
+		E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactQueueEntity.m; sourceTree = "<group>"; };
 		FF9034A941D5FA6F68821235 /* libPods-Test_Nimbus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Test_Nimbus.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -395,6 +404,8 @@
 				E57DB9231FCBD30D008587EE /* NSString+Utils.m */,
 				E57DB9251FCBE966008587EE /* UIColor+Utils.h */,
 				E57DB9261FCBE966008587EE /* UIColor+Utils.m */,
+				E5F32E0B1FCF9B880001577F /* UIImageView+Utils.h */,
+				E5F32E0C1FCF9B880001577F /* UIImageView+Utils.m */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -404,6 +415,8 @@
 			children = (
 				E55F7B971FCE5B66008F1B85 /* HMContactAdapter.h */,
 				E55F7B981FCE5B66008F1B85 /* HMContactAdapter.m */,
+				E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */,
+				E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */,
 			);
 			path = Adapter;
 			sourceTree = "<group>";
@@ -428,6 +441,7 @@
 		E57DB92B1FCC2E58008587EE /* NI Custom */ = {
 			isa = PBXGroup;
 			children = (
+				E5F32E0E1FCFADBB0001577F /* NI Cache */,
 				E5EDAFF41FC80D990030EDD6 /* NI Objects */,
 			);
 			path = "NI Custom";
@@ -546,6 +560,15 @@
 				E57DB9291FCBF65F008587EE /* HMContactModel.m */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		E5F32E0E1FCFADBB0001577F /* NI Cache */ = {
+			isa = PBXGroup;
+			children = (
+				E5F32E0F1FCFADF60001577F /* HMImageMemoryCache.h */,
+				E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */,
+			);
+			path = "NI Cache";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -690,6 +713,7 @@
 				E521C1E11FC6B0D7001EAC12 /* NIRadioGroupController.m in Sources */,
 				E508BF701FC6A04B009DDFE2 /* NIState.m in Sources */,
 				E521C1DD1FC6B0D7001EAC12 /* NICellFactory.m in Sources */,
+				E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */,
 				E508BF811FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m in Sources */,
 				E5F09A161FCBA6A500048FD3 /* DataFactory.m in Sources */,
 				E57DB92A1FCBF65F008587EE /* HMContactModel.m in Sources */,
@@ -697,6 +721,7 @@
 				E521C1DA1FC6B0D7001EAC12 /* NIMutableTableViewModel.m in Sources */,
 				E508BF791FC6A04B009DDFE2 /* NIOperations.m in Sources */,
 				E5F09A191FCBA6E400048FD3 /* FileUtils.m in Sources */,
+				E5F32E141FCFE5460001577F /* HMContactQueueEntity.m in Sources */,
 				E5EDAFF01FC7F4190030EDD6 /* NICollectionViewModel.m in Sources */,
 				E5EDAFD31FC7C33E0030EDD6 /* UIImage+Utils.m in Sources */,
 				E508BF7F1FC6A04B009DDFE2 /* NIInMemoryCache.m in Sources */,
@@ -726,6 +751,7 @@
 				E55F7B921FCE542D008F1B85 /* HMContactViewController.m in Sources */,
 				E55F7BA11FCE5FC0008F1B85 /* HMErrorFactory.m in Sources */,
 				E55F7B951FCE59F7008F1B85 /* HMInviteContactController.m in Sources */,
+				E5F32E111FCFADF60001577F /* HMImageMemoryCache.m in Sources */,
 				E521C1F51FC6E08B001EAC12 /* CNContact+Utils.m in Sources */,
 				E508BF711FC6A04B009DDFE2 /* NIViewRecycler.m in Sources */,
 				E508BF751FC6A04B009DDFE2 /* UIResponder+NimbusCore.m in Sources */,

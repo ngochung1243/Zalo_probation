@@ -11,6 +11,8 @@
 #import "UIImage+Utils.h"
 #import "Masonry.h"
 #import "HMContactModel.h"
+#import "HMImageMemoryCache.h"
+#import "UIImageView+Utils.h"
 
 @implementation HMContactTableObject
 
@@ -64,7 +66,25 @@
         id model = [(id<HMCellObject>)object getModel];
         if ([model isKindOfClass:[HMContactModel class]]) {
             HMContactModel *contactModel = model;
-            _avatarView.image = contactModel.imageData;
+            id storeImage = [[HMImageMemoryCache shareInstance] objectWithName:contactModel.identifier];
+            if (storeImage && [storeImage isKindOfClass:[UIImage class]]) {
+                _avatarView.image = storeImage;
+            } else {
+                if (contactModel.imageData){
+                    [_avatarView asyncLoadCircleImageWithData:contactModel.imageData completion:^(UIImage *image) {
+                        [[HMImageMemoryCache shareInstance] storeObject:image withName:contactModel.identifier];
+                    }];
+                } else {
+                    dispatch_async(globalDefaultQueue, ^{
+                        UIImage *image = [UIImage letterImageWithString:contactModel.fullName textColor:UIColor.whiteColor andBackgroundColor:nil withSize:AvatarSize];
+                        dispatch_async(mainQueue, ^{
+                            _avatarView.image = image;
+                            [[HMImageMemoryCache shareInstance] storeObject:image withName:contactModel.identifier];
+                        });
+                    });
+                }
+            }
+            
             _nameLabel.text = contactModel.fullName;
         }
     }

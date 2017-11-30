@@ -18,10 +18,11 @@
 @end
 
 @interface HMContactModel : HMBaseModel <HMContactModel>
-
+@property(strong, nonatomic) NSString *identifier;
+@property(strong, nonatomic) NSString *groupName;
 @property(strong, nonatomic) NSString *firstName;
 @property(strong, nonatomic) NSString *lastName;
-@property(strong, nonatomic) UIImage *imageData;
+@property(strong, nonatomic) NSData *imageData;
 @property(getter=fullname, readonly) NSString *fullName;
 
 @end

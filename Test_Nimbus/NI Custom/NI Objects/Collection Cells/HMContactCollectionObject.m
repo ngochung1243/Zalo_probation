@@ -8,6 +8,8 @@
 
 #import "HMContactCollectionObject.h"
 #import "UIImage+Utils.h"
+#import "HMImageMemoryCache.h"
+#import "UIImageView+Utils.h"
 
 @implementation HMContactCollectionObject
 
@@ -40,7 +42,25 @@
 
 - (BOOL)shouldUpdateCellWithObject:(HMContactCollectionObject *)object {
     HMContactModel *contact = object.contact;
-    _avatarImageView.image = contact.imageData ? contact.imageData : [UIImage defaultCircleImageWithSize:AvatarSize];
+    id storeImage = [[HMImageMemoryCache shareInstance] objectWithName:contact.identifier];
+    if (storeImage && [storeImage isKindOfClass:[UIImage class]]) {
+        _avatarImageView.image = storeImage;
+    } else {
+        if (contact.imageData){
+            [_avatarImageView asyncLoadCircleImageWithData:contact.imageData completion:^(UIImage *image) {
+                [[HMImageMemoryCache shareInstance] storeObject:image withName:contact.identifier];
+            }];
+        } else {
+            dispatch_async(globalDefaultQueue, ^{
+                UIImage *image = [UIImage letterImageWithString:contact.fullName textColor:UIColor.whiteColor andBackgroundColor:nil withSize:AvatarSize];
+                dispatch_async(mainQueue, ^{
+                    _avatarImageView.image = image;
+                    [[HMImageMemoryCache shareInstance] storeObject:image withName:contact.identifier];
+                });
+            });
+        }
+    }
+    
     return YES;
 }
 

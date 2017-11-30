@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "HMCatalogViewController.h"
 #import "HMContactViewController.h"
+#import "HMImageMemoryCache.h"
 
 @interface AppDelegate ()
 
@@ -21,13 +22,12 @@
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = UIColor.whiteColor;
     HMCatalogViewController *catalogVC = [[HMCatalogViewController alloc] init];
-    HMContactViewController *contactVC = [[HMContactViewController alloc] init];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:catalogVC];
     [navigationController.navigationBar setTranslucent:NO];
     self.window.rootViewController = navigationController;
     [self.window makeKeyAndVisible];
     
-    
+    [HMImageMemoryCache shareInstance].maxNumberOfPixels = 1024 * 1024 * 10; //10m pixel
     return YES;
 }
 @end

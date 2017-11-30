@@ -12,7 +12,7 @@
 #import "HMPickedContactController.h"
 #import "HMContactAdapter.h"
 
-@interface HMInviteContactController : UIViewController <UISearchBarDelegate, HMContactViewDelegate, HMPickedContactDelegate>
+@interface HMInviteContactController : UIViewController <UISearchBarDelegate, HMContactViewDelegate, HMPickedContactDelegate, HMContactAdapterDelegate>
 
 @property(strong, nonatomic) NSMutableArray *contacts;
 

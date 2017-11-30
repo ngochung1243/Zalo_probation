@@ -9,6 +9,7 @@
 #import "HMContactAdapter.h"
 #import "Constaint.h"
 #import "HMAlertUtils.h"
+#import "HMContactQueueEntity.h"
 
 @implementation HMContactAdapter
 
@@ -20,6 +21,17 @@
 - (instancetype)initPrivate {
     if (self = [super init]) {
         contactStore = [[CNContactStore alloc] init];
+        contactSerialQueue = dispatch_queue_create("vn.com.hungmai.contactSerialQueue", DISPATCH_QUEUE_SERIAL);
+        requestPermissionQueues = [NSMutableArray new];
+        requestAllContactsQueues = [NSMutableArray new];
+        mutableDelegate = [NSMutableArray new];
+        
+        isContactQueueRunning = NO;
+        isRequestPermission = NO;
+        
+        cachePermissionError = nil;
+        cachePermissionResult = NO;
+        cacheContacts = nil;
     }
     
     return self;
@@ -39,79 +51,242 @@
 
 #pragma mark - Public
 
+- (void)addDelegate:(id<HMContactAdapterDelegate>)delegate {
+    if (!delegate) {
+        return;
+    }
+    
+    NSAssert([delegate conformsToProtocol:@protocol(HMContactAdapterDelegate)], @"Can't add a delegate not implemented HMContactAdapterDelegate protocol");
+    [mutableDelegate addObject:delegate];
+}
+
 - (void)requestPermissionInQueue:(dispatch_queue_t)queue
                         completion:(void (^)(BOOL, NSError *))completionBlock {
-    dispatch_async(queue ? queue : mainQueue, ^{
+    NSAssert(contactSerialQueue, @"Can't request contact permission. Contact serial queue is not initilized");
+    
+    if (isRequestPermission) {
+        dispatch_async(queue, ^{
+            completionBlock(cachePermissionResult, cachePermissionError);
+        });
+        
+        return;
+    }
+    
+    HMContactPermissionQueueEntity *queueEntity = [[HMContactPermissionQueueEntity alloc] initWithQueue:queue permissionBlock:completionBlock];
+    if (queueEntity) {
+        [requestPermissionQueues addObject:queueEntity];
+    }
+
+    if (isContactQueueRunning) {
+        NSLog(@"[HM] Request permission: queue is running");
+        return;
+    } else {
+        isContactQueueRunning = YES;
+    }
+    
+    dispatch_async(contactSerialQueue, ^{
+        NSLog(@"[HM] Request permission: queue start");
+        
         CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
         __block BOOL result = NO;
         __block NSError *permissionError = nil;
         switch (status) {
-            case CNAuthorizationStatusAuthorized:
+                case CNAuthorizationStatusAuthorized:
                 result = YES;
                 break;
-            case CNAuthorizationStatusNotDetermined:
+                case CNAuthorizationStatusNotDetermined:
                 [contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
                     result = granted;
                     permissionError = error;
                 }];
                 break;
-            case CNAuthorizationStatusDenied: {
-                result = NO;
-                NSDictionary *dict = @{kErrorMessage: NSLocalizedString(@"User denied contact permission", nil),
-                                       kErrorCode: @1,
-                                       kErrorType:[NSNumber numberWithInteger:HMPermissionErrorTypeDenied]};
-                permissionError = [HMErrorFactory makeErrorWithFactoryType:HMErrorFactoryTypePermission withParamsDict:dict];
-                break;
-            }
+                case CNAuthorizationStatusDenied: {
+                    result = NO;
+                    NSDictionary *dict = @{kErrorMessage: NSLocalizedString(@"User denied contact permission", nil),
+                                           kErrorCode: @1,
+                                           kErrorType:[NSNumber numberWithInteger:HMPermissionErrorTypeDenied]};
+                    permissionError = [HMErrorFactory makeErrorWithFactoryType:HMErrorFactoryTypePermission withParamsDict:dict];
+                    break;
+                }
                 
-            case CNAuthorizationStatusRestricted: {
-                result = NO;
-                NSDictionary *dict = @{kErrorMessage: NSLocalizedString(@"User restricted contact permission", nil),
-                                       kErrorCode: @2,
-                                       kErrorType:[NSNumber numberWithInteger:HMPermissionErrorTypeRestricted]};
-                permissionError = [HMErrorFactory makeErrorWithFactoryType:HMErrorFactoryTypePermission withParamsDict:dict];
-                break;
-            }
+                case CNAuthorizationStatusRestricted: {
+                    result = NO;
+                    NSDictionary *dict = @{kErrorMessage: NSLocalizedString(@"User restricted contact permission", nil),
+                                           kErrorCode: @2,
+                                           kErrorType:[NSNumber numberWithInteger:HMPermissionErrorTypeRestricted]};
+                    permissionError = [HMErrorFactory makeErrorWithFactoryType:HMErrorFactoryTypePermission withParamsDict:dict];
+                    break;
+                }
             default:
                 break;
         }
         
-        dispatch_async(mainQueue, ^{
-            completionBlock(result, permissionError);
-        });
+        [requestPermissionQueues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj isKindOfClass:[HMContactPermissionQueueEntity class]]) {
+                HMContactPermissionQueueEntity *queueEntity = obj;
+                dispatch_async(queueEntity.queue, ^{
+                    NSLog(@"[HM] Request permission: queue return");
+                    queueEntity.permissionBlock(result, permissionError);
+                });
+            }
+        }];
+        [requestPermissionQueues removeAllObjects];
+        
+        cachePermissionResult = result;
+        cachePermissionError = permissionError;
+        isRequestPermission = YES;
+        isContactQueueRunning = NO;
     });
 }
 
 - (void)getAllContactsInQueue:(dispatch_queue_t)queue
                    modelClass:(Class<HMContactModel>)modelClass
                    completion:(void (^)(NSArray *, NSError *))completionBlock {
-    [self requestPermissionInQueue:queue completion:^(BOOL granted, NSError *error) {
-        if (error) {
-            completionBlock(nil, error);
-            return;
+    NSAssert(contactSerialQueue, @"Can't get contacts. Contact serial queue is not initilized");
+    
+    [self requestPermissionInQueue:globalDefaultQueue completion:^(BOOL granted, NSError *error) {
+        HMContactGettingQueueEntity *queueEntity = [[HMContactGettingQueueEntity alloc] initWithQueue:queue gettingBlock:completionBlock];
+        if (queueEntity) {
+            [requestAllContactsQueues addObject:queueEntity];
         }
         
-        NSMutableArray *models = [NSMutableArray new];
+        if (isContactQueueRunning) {
+            NSLog(@"[HM] Request contacts: queue is running");
+            return;
+        } else {
+            isContactQueueRunning = YES;
+        }
         
-        if (granted) {
-            NSArray *keysToFetch = @[CNContactEmailAddressesKey,
-                                     CNContactFamilyNameKey,
-                                     CNContactGivenNameKey,
-                                     CNContactPhoneNumbersKey,
-                                     CNContactImageDataKey,
-                                     CNContactThumbnailImageDataKey];
-            CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:keysToFetch];
-            NSError *error;
-            [contactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
-                if (contact) {
-                    id model = [modelClass modelWithContact:contact];
-                    [models addObject:model];
+        dispatch_async(contactSerialQueue, ^{
+            NSLog(@"[HM] Request contacts: queue start");
+            NSMutableArray *models = nil;
+            NSError *getContactError = nil;
+            if (error) {
+                getContactError = error;
+            } else {
+                if (granted) {
+                    models = [NSMutableArray new];
+                    NSArray *keysToFetch = @[CNContactEmailAddressesKey,
+                                             CNContactFamilyNameKey,
+                                             CNContactGivenNameKey,
+                                             CNContactPhoneNumbersKey,
+                                             CNContactImageDataKey,
+                                             CNContactThumbnailImageDataKey];
+                    CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:keysToFetch];
+                    NSError *error;
+                    [contactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
+                        if (contact && (![self hasAlreadyData] || ![self containtContact:contact])) {
+                            id model = [modelClass modelWithContact:contact];
+                            [models addObject:model];
+                        }
+                    }];
+                }
+            }
+            
+            if ([self hasAlreadyData]) {
+                [cacheContacts addObjectsFromArray:models];
+            } else {
+                cacheContacts = models;
+            }
+            
+            
+            [requestAllContactsQueues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if ([obj isKindOfClass:[HMContactGettingQueueEntity class]]) {
+                    HMContactGettingQueueEntity *queueEntity = obj;
+                    dispatch_async(queueEntity.queue, ^{
+                        NSLog(@"[HM] Request contacts: queue return");
+                        queueEntity.gettingBlock(cacheContacts, getContactError);
+                    });
+                }
+            }];
+            [requestAllContactsQueues removeAllObjects];
+            
+            isContactQueueRunning = NO;
+        });
+    }];
+}
+
+- (void)getAllContactsSequenceInQueue:(dispatch_queue_t)queue
+                           modelClass:(Class<HMContactModel>)modelClass
+                        sequenceCount:(NSUInteger)sequenceCount
+                             sequence:(void (^)(NSArray *))sequenceBlock
+                           completion:(void (^)(NSError *))completionBlock {
+    
+    NSAssert(contactSerialQueue, @"Can't get contacts. Contact serial queue is not initilized");
+    
+    [self requestPermissionInQueue:globalDefaultQueue completion:^(BOOL granted, NSError *error) {
+        HMContactSequenceQueueEntity *queueEntity = [[HMContactSequenceQueueEntity alloc] initWithQueue:queue
+                                                                                               sequence:sequenceBlock
+                                                                                               complete:completionBlock];
+        if (queueEntity) {
+            [requestAllContactsQueues addObject:queueEntity];
+        }
+        
+        if (isContactQueueRunning) {
+            NSLog(@"[HM] Request contacts: queue is running");
+            return;
+        } else {
+            isContactQueueRunning = YES;
+        }
+        
+        dispatch_async(contactSerialQueue, ^{
+            NSLog(@"[HM] Request contacts: queue start");
+            NSMutableArray *models = nil;
+            NSError *getContactError = nil;
+            __block NSMutableArray *tempModels = [NSMutableArray new];
+            if (error) {
+                getContactError = error;
+            } else {
+                if (granted) {
+                    models = [NSMutableArray new];
+                    
+                    NSArray *keysToFetch = @[CNContactEmailAddressesKey,
+                                             CNContactFamilyNameKey,
+                                             CNContactGivenNameKey,
+                                             CNContactPhoneNumbersKey,
+                                             CNContactImageDataKey,
+                                             CNContactThumbnailImageDataKey];
+                    CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:keysToFetch];
+                    NSError *error;
+                    [contactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
+                        if (contact && (![self hasAlreadyData] || ![self containtContact:contact])) {
+                            id model = [modelClass modelWithContact:contact];
+                            [tempModels addObject:model];
+                            [models addObject:model];
+                            if (tempModels.count % sequenceCount == 0) {
+                                [self transferDataWithModels:tempModels andError:getContactError];
+                                tempModels = [NSMutableArray new];
+                            }
+                        }
+                    }];
+                }
+            }
+            
+            if (tempModels.count > 0) {
+                [self transferDataWithModels:tempModels andError:getContactError];
+                tempModels = [NSMutableArray new];
+            }
+            
+            if ([self hasAlreadyData]) {
+                [cacheContacts addObjectsFromArray:models];
+            } else {
+                cacheContacts = models;
+            }
+            
+            [requestAllContactsQueues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if ([obj isKindOfClass:[HMContactSequenceQueueEntity class]]) {
+                    HMContactSequenceQueueEntity *queueEntity = obj;
+                    dispatch_async(queueEntity.queue, ^{
+                        NSLog(@"[HM] Request contacts: queue return");
+                        queueEntity.completeBlock(getContactError);
+                    });
                 }
             }];
             
-            completionBlock(models, error);
-        }
-        
+            [requestAllContactsQueues removeAllObjects];
+            
+            isContactQueueRunning = NO;
+        });
     }];
 }
 
@@ -135,14 +310,62 @@
 }
 
 - (BOOL)isGrantedPermission {
-    CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
-    if (status == CNAuthorizationStatusAuthorized) {
+    return isRequestPermission;
+}
+
+- (BOOL)hasAlreadyData {
+    return cacheContacts.count > 0 ? YES : NO;
+}
+
+- (NSArray *)getAlreadyContacts {
+    return cacheContacts;
+}
+
+- (BOOL)isStartedTimer {
+    return isStartedTimer;
+}
+
+- (BOOL)startFrequentlyGetContactAfterMinute:(long)minute {
+    [self stopFrequentlyGetContact];
+    
+    long second = minute * 60;
+    requestContactTimer = [NSTimer scheduledTimerWithTimeInterval:second target:self selector:@selector(requestContactFrequently) userInfo:nil repeats:YES];
+    isStartedTimer = YES;
+    return requestContactTimer ? YES : NO;
+}
+
+- (BOOL)stopFrequentlyGetContact {
+    isStartedTimer = NO;
+    if (requestContactTimer) {
+        [requestContactTimer invalidate];
         return YES;
     }
     return NO;
 }
 
 #pragma mark - Private
+
+- (void)transferDataWithModels:(NSArray *)models andError:(NSError *)error {
+    [requestAllContactsQueues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[HMContactSequenceQueueEntity class]]) {
+            HMContactSequenceQueueEntity *queueEntity = obj;
+            dispatch_async(queueEntity.queue, ^{
+                queueEntity.sequenceBlock(models);
+            });
+        }
+    }];
+}
+
+- (BOOL)containtContact:(CNContact *)contact {
+    __block BOOL result = NO;
+    [cacheContacts enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[HMContactModel class]] && [((HMContactModel *)obj).identifier isEqualToString:contact.identifier]) {
+            result = YES;
+        }
+    }];
+    
+    return result;
+}
 
 //Group contact with first character name
 - (NSDictionary *)groupModels:(NSArray *)models{
@@ -191,6 +414,14 @@
         }
     }];
     return cellContent;
+}
+
+- (void)requestContactFrequently {
+    [self getAllContactsInQueue:nil modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
+        [mutableDelegate enumerateObjectsUsingBlock:^(id<HMContactAdapterDelegate>  _Nonnull delegate, NSUInteger idx, BOOL * _Nonnull stop) {
+            [delegate hmContactAdapter:self didReceiveContactsRequently:cacheContacts];
+        }];
+    }];
 }
 
 @end

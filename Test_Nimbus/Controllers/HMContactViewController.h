@@ -16,17 +16,23 @@
 - (void)hmContactViewController:(HMContactViewController *)contactVC didSelectModel:(id)model;
 - (void)hmContactViewController:(HMContactViewController *)contactVC didDeselectModel:(id)model;
 - (BOOL)hmContactViewController:(HMContactViewController *)contactVC checkSelectedModel:(id)model;
+- (void)hmContactViewController:(HMContactViewController *)contactVC shouldLoadMoreWithCurrentModelCount:(NSUInteger)modelCount;
 
 @end
 
-@interface HMContactViewController : UITableViewController <UITableViewDelegate, NIMutableTableViewModelDelegate>
+@interface HMContactViewController : UITableViewController <UITableViewDelegate, NIMutableTableViewModelDelegate> {
+    NSMutableArray *allGroupKeys;
+    NSMutableDictionary *groupDict;
+}
 
-@property(strong, nonatomic) NSArray *objects;
+@property(strong, nonatomic) NSMutableArray *objects;
+
 
 @property(strong, nonatomic) NIMutableTableViewModel *modelDataSource;
 @property(weak, nonatomic) id<HMContactViewDelegate> delegate;
 
 - (void)setData:(NSArray *)models;
+- (void)addData:(NSArray *)models;
 - (void)scrollToModel:(id)model;
 
 @end
