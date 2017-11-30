@@ -16,8 +16,13 @@
 - (id)getModel;
 @end
 
-@interface HMContactTableObject : NIDrawRectBlockCellObject <HMCellObject>
+@interface HMContactTableObject : NICellObject <HMCellObject>
+@property(strong, nonatomic) id model;
 @end
 
-@interface HMContactTableCell: NIDrawRectBlockCell
+@interface HMContactTableCell: UITableViewCell<NICell>
+
+@property(strong, nonatomic) UIImageView *avatarView;
+@property(strong, nonatomic) UILabel *nameLabel;
+
 @end

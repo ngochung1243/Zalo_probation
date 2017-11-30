@@ -9,42 +9,66 @@
 #import "HMContactTableObject.h"
 #import "Constaint.h"
 #import "UIImage+Utils.h"
+#import "Masonry.h"
+#import "HMContactModel.h"
 
 @implementation HMContactTableObject
 
-#define Padding UIEdgeInsetsMake(5, 10, 5, 10)
-#define NameFontSize 15
-
-- (id)initWithBlock:(NICellDrawRectBlock)block object:(id)object {
-    if ((self = [super initWithCellClass:[HMContactTableCell class]])) {
-        self.block = block;
-        self.object = object;
-    }
-    return self;
-}
-
 + (instancetype)objectWithModel:(id)model {
-    return [HMContactTableObject objectWithBlock:^CGFloat(CGRect rect, id object, UITableViewCell *cell) {
-        if ([model isKindOfClass:[HMContactModel class]]) {
-            HMContactModel *contact = model;
-            cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-            UIImage *avatar = contact.imageData ? contact.imageData : [UIImage defaultCircleImageWithSize:AvatarSize];
-            [avatar drawAtPoint:CGPointMake(Padding.left, Padding.top)];
-            NSString *fullName = contact.fullName;
-            UIFont *nameFont = [UIFont systemFontOfSize:NameFontSize];
-            [fullName drawAtPoint:CGPointMake(Padding.left + AvatarSize.width + Padding.left, CGRectGetMidY(rect) - nameFont.lineHeight/2) withAttributes:@{NSFontAttributeName: nameFont}];
-        }
-        return 0;
-
-    } object:model];
+    HMContactTableObject *cellObject = [[HMContactTableObject alloc] initWithCellClass:[HMContactTableCell class]];
+    cellObject.model = model;
+    return cellObject;
 }
 
 - (id)getModel {
-    return self.object;
+    return _model;
 }
 
 @end
 
 @implementation HMContactTableCell
+
+#define defaultCellColor           UIColor.whiteColor
+#define Padding UIEdgeInsetsMake(5, 10, 5, 10)
+#define NameFontSize 15
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        self.backgroundColor = defaultCellColor;
+        self.selectionStyle = UITableViewCellSelectionStyleBlue;
+        
+        _avatarView = [[UIImageView alloc] init];
+        _avatarView.alpha = 1;
+        _avatarView.backgroundColor = defaultCellColor;
+        [self.contentView addSubview:_avatarView];
+        [_avatarView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.equalTo(self.contentView);
+            make.left.equalTo(self.contentView).offset(Padding.left);
+            make.size.mas_equalTo(AvatarSize);
+        }];
+        
+        _nameLabel = [[UILabel alloc] init];
+        _nameLabel.font = [UIFont systemFontOfSize:NameFontSize];
+        [self.contentView addSubview:_nameLabel];
+        [_nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.equalTo(self.contentView);
+            make.left.equalTo(_avatarView.mas_right).offset(Padding.left);
+        }];
+    }
+    
+    return self;
+}
+
+- (BOOL)shouldUpdateCellWithObject:(id)object {
+    if ([object conformsToProtocol:@protocol(HMCellObject)]) {
+        id model = [(id<HMCellObject>)object getModel];
+        if ([model isKindOfClass:[HMContactModel class]]) {
+            HMContactModel *contactModel = model;
+            _avatarView.image = contactModel.imageData;
+            _nameLabel.text = contactModel.fullName;
+        }
+    }
+    return YES;
+}
 
 @end
