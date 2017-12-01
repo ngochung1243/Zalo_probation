@@ -12,7 +12,7 @@
 #import "Constaint.h"
 #import "HMAlertUtils.h"
 
-#define contactAdapter              [HMContactAdapter shareInstance]
+#define ContactManager             [HMContactManager shareInstance]
 
 #define ContactBarViewHeight        60
 #define SearchBarHeight             45
@@ -25,7 +25,7 @@
     [super viewDidLoad];
     _contacts = [NSMutableArray new];
     self.view.backgroundColor = [UIColor colorWithRed:205.0/255 green:205.0/255 blue:210.0/255 alpha:1];
-    [contactAdapter addDelegate:self];
+    [ContactManager addDelegate:self];
     
     _headerView = [[UIView alloc] init];
     _headerView.backgroundColor = UIColor.clearColor;
@@ -78,8 +78,8 @@
 }
 
 - (void)loadContactWithCompletion:(void(^)(BOOL))completionBlock {
-    if ([contactAdapter hasAlreadyData]) {
-        [_contacts addObjectsFromArray:[contactAdapter getAlreadyContacts]];
+    if ([ContactManager hasAlreadyData]) {
+        [_contacts addObjectsFromArray:[ContactManager getAlreadyContacts]];
         [_contactVC setData:_contacts];
         if (completionBlock) {
             completionBlock(YES);
@@ -88,7 +88,7 @@
         return;
     }
     
-    [contactAdapter requestPermissionInQueue:mainQueue completion:^(BOOL granted, NSError *error) {
+    [ContactManager requestPermissionInQueue:mainQueue completion:^(BOOL granted, NSError *error) {
         if (granted) {
 //            [self getAllContactsWithCompletion:completionBlock];
             [self getAllContactsSequence];
@@ -126,7 +126,7 @@
 
 - (void)getAllContactsWithCompletion:(void(^)(BOOL))completionBlock {
     [_contacts removeAllObjects];
-    [contactAdapter getAllContactsInQueue:mainQueue modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
+    [ContactManager getAllContactsInQueue:mainQueue modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
         if (!error) {
             [_contacts addObjectsFromArray:contactModels];
             [_contactVC setData:contactModels];
@@ -139,7 +139,7 @@
 }
 
 - (void)getAllContactsSequence {
-    [contactAdapter getAllContactsSequenceInQueue:mainQueue
+    [ContactManager getAllContactsSequenceInQueue:mainQueue
                                        modelClass:[HMContactModel class]
                                     sequenceCount:50
                                          sequence:^(NSArray *contactModels) {
@@ -206,7 +206,7 @@
 }
 
 #pragma mark - HMContactAdapterDelegate
-- (void)hmContactAdapter:(HMContactAdapter *)adapter didReceiveContactsRequently:(NSArray *)contacts {
+- (void)hmContactManager:(HMContactManager *)manager didReceiveContactsRequently:(NSArray *)contacts {
     [_contacts removeAllObjects];
     [_contacts addObjectsFromArray:contacts];
     [_contactVC setData:_contacts];

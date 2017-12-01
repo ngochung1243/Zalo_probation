@@ -15,64 +15,20 @@
 
 @class HMContactAdapter;
 
-@protocol HMContactAdapterDelegate <NSObject>
-
-- (void)hmContactAdapter:(HMContactAdapter *)adapter didReceiveContactsRequently:(NSArray *)contacts;
-
-@end
-
-@interface HMContactAdapter : NSObject {
+@interface HMContactAdapter: NSObject {
+    NSMutableArray *allGroupKeys;
+    NSMutableDictionary *groupDict;
+    NSArray *objects;
     
-    NSMutableArray *requestPermissionQueues;
-    NSMutableArray *requestAllContactsQueues;
-    NSMutableArray *mutableDelegate;
-    
-    NSError *cachePermissionError;
-    BOOL cachePermissionResult;
-    NSMutableArray *cacheContacts;
-    BOOL isRequestPermission;
-    
-    BOOL isContactQueueRunning;
-    dispatch_queue_t contactSerialQueue;
-    
-    CNContactStore *contactStore;
-    NSTimer *requestContactTimer;
-    BOOL isStartedTimer;
+    Class<HMCellObject> objectClass;
+    dispatch_queue_t ctAdapterSerialQueue;
 }
 
-+ (instancetype)shareInstance;
+- (instancetype)initWithObjectClass:(Class<HMCellObject>)objClass;
 
-- (void)addDelegate:(id<HMContactAdapterDelegate>)delegate;
+- (void)setData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void(^)(NSArray *objects))completion;
+- (void)addData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void(^)(NSArray *objects))completion;
 
-- (void)requestPermissionInQueue:(dispatch_queue_t)queue
-                        completion:(void(^)(BOOL granted, NSError *error))completionBlock;
-
-- (void)getAllContactsInQueue:(dispatch_queue_t)queue
-                   modelClass:(Class<HMContactModel>) modelClass
-                   completion:(void(^)(NSArray *contactModels, NSError *error))completionBlock;
-
-- (void)getAllContactsSequenceInQueue:(dispatch_queue_t)queue
-                           modelClass:(Class<HMContactModel>) modelClass
-                        sequenceCount:(NSUInteger)sequenceCount
-                             sequence:(void(^)(NSArray *contactModels))sequenceBlock
-                           completion:(void(^)(NSError *error))completionBlock ;
-
-- (void)getContactsFromIndex:(NSUInteger)fromIndex
-                     toIndex:(NSUInteger)toIndex
-                  completion:(void(NSArray *models, NSError *error))completionBlock;
-
-- (void)prepareDataWithObjectClass:(Class<HMCellObject>)objectClass
-                         andModels:(NSArray *)models
-                       groupObject:(BOOL)groupObject
-                           inQueue:(dispatch_queue_t)queue
-                        completion:(void (^)(NSArray *objects))completionBlock;
-
-- (BOOL)isGrantedPermission;
-- (BOOL)hasAlreadyData;
-- (NSArray *)getAlreadyContacts;
-
-- (BOOL)isStartedTimer;
-- (BOOL)startFrequentlyGetContactAfterMinute:(long)minute;
-- (BOOL)stopFrequentlyGetContact;
+- (NSArray *)getObjects;
 
 @end

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NimbusModels.h"
+#import "HMContactAdapter.h"
 
 @class HMContactViewController;
 
@@ -16,19 +17,16 @@
 - (void)hmContactViewController:(HMContactViewController *)contactVC didSelectModel:(id)model;
 - (void)hmContactViewController:(HMContactViewController *)contactVC didDeselectModel:(id)model;
 - (BOOL)hmContactViewController:(HMContactViewController *)contactVC checkSelectedModel:(id)model;
-- (void)hmContactViewController:(HMContactViewController *)contactVC shouldLoadMoreWithCurrentModelCount:(NSUInteger)modelCount;
 
 @end
 
 @interface HMContactViewController : UITableViewController <UITableViewDelegate, NIMutableTableViewModelDelegate> {
     NSMutableArray *allGroupKeys;
     NSMutableDictionary *groupDict;
+    HMContactAdapter *adapter;
+    NIMutableTableViewModel *modelDataSource;
 }
 
-@property(strong, nonatomic) NSMutableArray *objects;
-
-
-@property(strong, nonatomic) NIMutableTableViewModel *modelDataSource;
 @property(weak, nonatomic) id<HMContactViewDelegate> delegate;
 
 - (void)setData:(NSArray *)models;

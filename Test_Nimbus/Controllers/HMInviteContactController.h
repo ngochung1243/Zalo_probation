@@ -10,9 +10,9 @@
 #import "HMTransparentSearchBar.h"
 #import "HMContactViewController.h"
 #import "HMPickedContactController.h"
-#import "HMContactAdapter.h"
+#import "HMContactManager.h"
 
-@interface HMInviteContactController : UIViewController <UISearchBarDelegate, HMContactViewDelegate, HMPickedContactDelegate, HMContactAdapterDelegate>
+@interface HMInviteContactController : UIViewController <UISearchBarDelegate, HMContactViewDelegate, HMPickedContactDelegate, HMContactManagerDelegate>
 
 @property(strong, nonatomic) NSMutableArray *contacts;
 

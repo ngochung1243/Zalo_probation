@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5C45C24C735C17BB0459DDD9 /* libPods-Test_Nimbus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FF9034A941D5FA6F68821235 /* libPods-Test_Nimbus.a */; };
+		75271BFE1FD0C47C00605D09 /* HMContactManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 75271BFD1FD0C47C00605D09 /* HMContactManager.m */; };
 		E508B2971FCD05B2006207F8 /* HMTransparentSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = E508B2961FCD05B2006207F8 /* HMTransparentSearchBar.m */; };
 		E508BF271FC69B74009DDFE2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF261FC69B74009DDFE2 /* AppDelegate.m */; };
 		E508BF2D1FC69B74009DDFE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E508BF2B1FC69B74009DDFE2 /* Main.storyboard */; };
@@ -76,6 +77,8 @@
 /* Begin PBXFileReference section */
 		084F7E65B8FD12D4EBD4744B /* Pods-Test_Nimbus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Test_Nimbus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Test_Nimbus/Pods-Test_Nimbus.release.xcconfig"; sourceTree = "<group>"; };
 		5BB327A6784A5220F272C072 /* Pods-Test_Nimbus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Test_Nimbus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Test_Nimbus/Pods-Test_Nimbus.debug.xcconfig"; sourceTree = "<group>"; };
+		75271BFC1FD0C47C00605D09 /* HMContactManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactManager.h; sourceTree = "<group>"; };
+		75271BFD1FD0C47C00605D09 /* HMContactManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactManager.m; sourceTree = "<group>"; };
 		E508B2951FCD05B2006207F8 /* HMTransparentSearchBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMTransparentSearchBar.h; sourceTree = "<group>"; };
 		E508B2961FCD05B2006207F8 /* HMTransparentSearchBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMTransparentSearchBar.m; sourceTree = "<group>"; };
 		E508BF221FC69B74009DDFE2 /* Test_Nimbus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test_Nimbus.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -417,6 +420,8 @@
 				E55F7B981FCE5B66008F1B85 /* HMContactAdapter.m */,
 				E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */,
 				E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */,
+				75271BFC1FD0C47C00605D09 /* HMContactManager.h */,
+				75271BFD1FD0C47C00605D09 /* HMContactManager.m */,
 			);
 			path = Adapter;
 			sourceTree = "<group>";
@@ -715,6 +720,7 @@
 				E521C1DD1FC6B0D7001EAC12 /* NICellFactory.m in Sources */,
 				E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */,
 				E508BF811FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m in Sources */,
+				75271BFE1FD0C47C00605D09 /* HMContactManager.m in Sources */,
 				E5F09A161FCBA6A500048FD3 /* DataFactory.m in Sources */,
 				E57DB92A1FCBF65F008587EE /* HMContactModel.m in Sources */,
 				E5F09A101FCBA4A400048FD3 /* HMBaseModel.m in Sources */,
