@@ -11,12 +11,11 @@
 #import "HMAlertUtils.h"
 #import "HMContactQueueEntity.h"
 
+#pragma mark - HMContactAdapter Base Class
 @implementation HMContactAdapter
 
 - (instancetype)initWithObjectClass:(Class<HMCellObject>)objClass {
     if (self = [super init]) {
-        allGroupKeys = [NSMutableArray new];
-        groupDict = [NSMutableDictionary new];
         objects = [NSMutableArray new];
         
         objectClass = objClass;
@@ -30,35 +29,146 @@
 
 - (void)setData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void (^)(NSArray *))completion{
     NSAssert(ctAdapterSerialQueue, @"Contact adapter serial queue is nil. Please initilize before using it");
-    
-    __weak HMContactAdapter *weakSelf = self;
-    dispatch_async(ctAdapterSerialQueue, ^{
-        groupDict = [[weakSelf groupModels:models] mutableCopy];
-        allGroupKeys = [[weakSelf getAllGroupKeysWithDictionary:groupDict] mutableCopy];
-        objects = [weakSelf generateObjects];
-        dispatch_async(queue ? queue : mainQueue, ^{
-            completion(objects);
-        });
-    });
+    [objects removeAllObjects];
 }
 
-- (void)addData:(NSArray *)models
-    returnQueue:(dispatch_queue_t)queue
-     completion:(void (^)(NSArray *))completion{
+- (void)addData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void (^)(NSArray *))completion{
     NSAssert(ctAdapterSerialQueue, @"Contact adapter serial queue is nil. Please initilize before using it");
-    
-    __weak HMContactAdapter *weakSelf = self;
-    dispatch_async(ctAdapterSerialQueue, ^{
-        [weakSelf addModels:models];
-        objects = [weakSelf generateObjects];
-        dispatch_async(queue ? queue : mainQueue, ^{
-            completion(objects);
-        });
-    });
 }
 
 - (NSArray *)getObjects {
     return objects;
+}
+
+- (dispatch_queue_t)getReturnQueueWithQueue:(dispatch_queue_t)queue {
+    return queue ? queue : mainQueue;
+}
+
+- (NSUInteger)getIndexOfObject:(id)object shouldAddInArray:(NSArray *)array {
+    NSUInteger newIndex = [array indexOfObject:object inSortedRange:(NSRange){0, array.count} options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        return [obj1 compare:obj2];
+    }];
+    
+    return newIndex;
+}
+@end
+
+
+
+#pragma mark - HMContactListAdapter Inheritance Class
+
+@implementation HMContactListAdapter
+
+#pragma mark - Public
+
+- (void)setData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void (^)(NSArray *))completion {
+    [super setData:models returnQueue:queue completion:completion];
+    
+    dispatch_queue_t returnQueue = [self getReturnQueueWithQueue:queue];
+    
+    __weak __typeof__(self) weakSelf = self;
+    dispatch_async(ctAdapterSerialQueue, ^{
+        __typeof__(self) strongSelf = weakSelf;
+        
+        NSArray *sortedModels = [models sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            return [obj1 compare:obj2];
+        }];
+        
+        [sortedModels enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (obj && [obj isKindOfClass:[HMContactModel class]]) {
+                id object = [objectClass objectWithModel:obj];
+                if (object) {
+                    [strongSelf->objects addObject:object];
+                }
+            }
+        }];
+        
+        dispatch_async(returnQueue, ^{
+            if (completion) {
+                completion(strongSelf->objects);
+            }
+        });
+    });
+}
+
+- (void)addData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void (^)(NSArray *))completion {
+    [super addData:models returnQueue:queue completion:completion];
+    
+    dispatch_queue_t returnQueue = [self getReturnQueueWithQueue:queue];
+    
+    __weak __typeof__(self) weakSelf = self;
+    dispatch_async(ctAdapterSerialQueue, ^{
+        __typeof__(self) strongSelf = weakSelf;
+        
+        [models enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            id object = [objectClass objectWithModel:obj];
+            NSUInteger newIndex = [strongSelf getIndexOfObject:object shouldAddInArray:strongSelf->objects];
+            [strongSelf->objects insertObject:object atIndex:newIndex];
+            
+            dispatch_async(returnQueue, ^{
+                if (completion) {
+                    completion(strongSelf->objects);
+                }
+            });
+        }];
+    });
+}
+
+@end
+
+
+#pragma mark - HMContactSectionAdapter Inheritance Class
+
+@implementation HMContactSectionAdapter
+
+- (instancetype)initWithObjectClass:(Class<HMCellObject>)objClass {
+    if (self = [super initWithObjectClass:objClass]) {
+        allGroupKeys = [NSMutableArray new];
+        groupDict = [NSMutableDictionary new];
+    }
+    
+    return self;
+}
+
+#pragma mark - Public
+
+- (void)setData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void (^)(NSArray *))completion {
+    [super setData:models returnQueue:queue completion:completion];
+    
+    dispatch_queue_t returnQueue = [self getReturnQueueWithQueue:queue];
+    
+    __weak __typeof__(self) weakSelf = self;
+    dispatch_async(ctAdapterSerialQueue, ^{
+        __typeof__(self) strongSelf = weakSelf;
+        strongSelf->groupDict = [[weakSelf groupModels:models] mutableCopy];
+        strongSelf->allGroupKeys = [[weakSelf getAllGroupKeysWithDictionary:groupDict] mutableCopy];
+        strongSelf->objects = [[weakSelf generateObjects] mutableCopy];
+        
+        dispatch_async(returnQueue, ^{
+            if (completion) {
+                completion(strongSelf->objects);
+            }
+        });
+    });
+}
+
+- (void)addData:(NSArray *)models returnQueue:(dispatch_queue_t)queue completion:(void (^)(NSArray *))completion {
+    [super addData:models returnQueue:queue completion:completion];
+    
+    dispatch_queue_t returnQueue = [self getReturnQueueWithQueue:queue];
+    
+    __weak __typeof__(self) weakSelf = self;
+    dispatch_async(ctAdapterSerialQueue, ^{
+        __typeof__(self) strongSelf = self;
+        [weakSelf addModels:models];
+        objects = [[weakSelf generateObjects] mutableCopy];
+        
+        dispatch_async(returnQueue, ^{
+            if (completion) {
+                completion(strongSelf->objects);
+            }
+        });
+    });
 }
 
 #pragma mark - Private
@@ -98,6 +208,7 @@
     return allGroupKey;
 }
 
+//Add and short new models to stored models
 - (void)addModels:(NSArray *)models {
     NSMutableArray *newSectionsIndex = [NSMutableArray new];
     NSMutableArray *newIndexPathsIndex = [NSMutableArray new];
@@ -157,6 +268,7 @@
     }];
 }
 
+//Create all objects with stored group model dictionary
 - (NSArray *)generateObjects {
     NSMutableArray *contentData = [NSMutableArray new];
     [allGroupKeys enumerateObjectsUsingBlock:^(id  _Nonnull groupKey, NSUInteger idx, BOOL * _Nonnull stop) {

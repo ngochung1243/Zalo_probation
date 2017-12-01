@@ -10,6 +10,7 @@
 #import "UIImage+Utils.h"
 #import "CNContact+Utils.h"
 #import "Constaint.h"
+#import "RegexKitLite.h"
 
 @implementation HMContactModel
 
@@ -61,12 +62,22 @@
         unichar c = [fullName characterAtIndex:0];
         gName = [NSString stringWithFormat:@"%C", c];
     }
+
     gName = [gName stringByReplacingOccurrencesOfString:@"đ" withString:@"d"];
     gName = [gName stringByReplacingOccurrencesOfString:@"Đ" withString:@"D"];
     NSData *decode = [gName dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     gName = [[NSString alloc] initWithData:decode encoding:NSASCIIStringEncoding];
+    
+    if ([gName isMatchedByRegex:@"[^a-zA-Z]"]) {
+        gName = @"#";
+    }
+    
     gName = [gName uppercaseString];
     return gName;
+}
+
+- (NSComparisonResult)compare:(HMContactModel *)contactModel {
+    return [self.fullName compare:contactModel.fullName];
 }
 
 @end

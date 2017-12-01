@@ -25,4 +25,6 @@
 @property(strong, nonatomic) NSData *imageData;
 @property(getter=fullname, readonly) NSString *fullName;
 
+- (NSComparisonResult)compare:(HMContactModel *)contactModel;
+
 @end

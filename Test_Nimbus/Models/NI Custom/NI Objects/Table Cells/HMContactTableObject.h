@@ -11,9 +11,10 @@
 #import <Contacts/Contacts.h>
 #import "HMContactModel.h"
 
-@protocol HMCellObject <NICellObject>
+@protocol HMCellObject <NSObject>
 + (instancetype)objectWithModel:(id)model;
 - (id)getModel;
+- (NSComparisonResult)compare:(id)object;
 @end
 
 @interface HMContactTableObject : NICellObject <HMCellObject>
@@ -24,5 +25,4 @@
 
 @property(strong, nonatomic) UIImageView *avatarView;
 @property(strong, nonatomic) UILabel *nameLabel;
-
 @end

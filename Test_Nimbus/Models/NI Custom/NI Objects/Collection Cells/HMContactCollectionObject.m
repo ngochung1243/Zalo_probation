@@ -13,12 +13,24 @@
 
 @implementation HMContactCollectionObject
 
-+ (instancetype)objectWithContact:(HMContactModel *)contact {
++ (instancetype)objectWithModel:(id)model {
     HMContactCollectionObject *contactObject = [[HMContactCollectionObject alloc] init];
     if (contactObject) {
-        contactObject.contact = contact;
+        contactObject.model = model;
     }
     return contactObject;
+}
+
+- (id)getModel {
+    return _model;
+}
+
+- (NSComparisonResult)compare:(id)object {
+    if ([object isKindOfClass:[HMContactTableObject class]]) {
+        return [self.model compare:((HMContactTableObject *)object).model];
+    }
+    
+    return NSOrderedSame;
 }
 
 #pragma mark - NICollectionViewCellObject
@@ -41,7 +53,7 @@
 }
 
 - (BOOL)shouldUpdateCellWithObject:(HMContactCollectionObject *)object {
-    HMContactModel *contact = object.contact;
+    HMContactModel *contact = object.model;
     id storeImage = [[HMImageMemoryCache shareInstance] objectWithName:contact.identifier];
     if (storeImage && [storeImage isKindOfClass:[UIImage class]]) {
         _avatarImageView.image = storeImage;

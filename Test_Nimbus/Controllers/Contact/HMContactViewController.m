@@ -11,7 +11,7 @@
 #import "Constaint.h"
 
 #define ContactManager              [HMContactManager shareInstance]
-#define TableCellHeight 60
+#define TableCellHeight             60
 
 @implementation HMContactViewController
 
@@ -28,28 +28,28 @@
     
     allGroupKeys = [NSMutableArray new];
     groupDict = [NSMutableDictionary new];
-    adapter = [[HMContactAdapter alloc] initWithObjectClass:[HMContactTableObject class]];
+    adapter = [[HMContactSectionAdapter alloc] initWithObjectClass:[HMContactTableObject class]];
 }
+
+#pragma mark - Handle Data
 
 - (void)setData:(NSArray *)models {
     __weak __typeof__(self) weakSelf = self;
     [adapter setData:models returnQueue:nil completion:^(NSArray *objects) {
-        __typeof__(self) strongSelf = weakSelf;
-        strongSelf->modelDataSource = [[NIMutableTableViewModel alloc] initWithSectionedArray:objects delegate:weakSelf];
-        [strongSelf->modelDataSource setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:YES showsSummary:YES];
-        strongSelf.tableView.dataSource = strongSelf->modelDataSource;
-        [strongSelf.tableView reloadData];
+        weakSelf.modelDataSource = [[NIMutableTableViewModel alloc] initWithSectionedArray:objects delegate:weakSelf];
+        [weakSelf.modelDataSource setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:YES showsSummary:YES];
+        weakSelf.tableView.dataSource = weakSelf.modelDataSource;
+        [weakSelf.tableView reloadData];
     }];
 }
 
 - (void)addData:(NSArray *)models {
     __weak __typeof__(self) weakSelf = self;
     [adapter addData:models returnQueue:nil completion:^(NSArray *objects) {
-        __typeof__(self) strongSelf = weakSelf;
-        strongSelf->modelDataSource = [[NIMutableTableViewModel alloc] initWithSectionedArray:objects delegate:weakSelf];
-        [strongSelf->modelDataSource setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:YES showsSummary:YES];
-        strongSelf.tableView.dataSource = strongSelf->modelDataSource;
-        [strongSelf.tableView reloadData];
+        weakSelf.modelDataSource = [[NIMutableTableViewModel alloc] initWithSectionedArray:objects delegate:weakSelf];
+        [weakSelf.modelDataSource setSectionIndexType:NITableViewModelSectionIndexDynamic showsSearch:YES showsSummary:YES];
+        weakSelf.tableView.dataSource = weakSelf.modelDataSource;
+        [weakSelf.tableView reloadData];
     }];
 }
 
@@ -61,14 +61,16 @@
     
     [objects enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([obj conformsToProtocol:@protocol(HMCellObject)] && [model isEqual:[obj getModel]]) {
-            NSIndexPath *indexPath = [modelDataSource indexPathForObject:obj];
+            NSIndexPath *indexPath = [_modelDataSource indexPathForObject:obj];
             [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
         }
     }];
 }
 
+#pragma mark - UITableViewDelegate
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    id<HMCellObject> object = [modelDataSource objectAtIndexPath:indexPath];
+    id<HMCellObject> object = [_modelDataSource objectAtIndexPath:indexPath];
     NSAssert([object conformsToProtocol:@protocol(HMCellObject)], @"Target object is not conformed to HMCellObject protocol");
     if (_delegate) {
         [_delegate hmContactViewController:self didSelectModel:[object getModel]];
@@ -76,12 +78,24 @@
 }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
-    id<HMCellObject> object = [modelDataSource objectAtIndexPath:indexPath];
+    id<HMCellObject> object = [_modelDataSource objectAtIndexPath:indexPath];
     NSAssert([object conformsToProtocol:@protocol(HMCellObject)], @"Target object is not conformed to HMCellObject protocol");
     if (_delegate) {
         [_delegate hmContactViewController:self didDeselectModel:[object getModel]];
     }
 }
+
+- (void)tableView:(UITableView *)tableView didHighlightRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    cell.selectedBackgroundView.hidden = NO;
+}
+
+- (void)tableView:(UITableView *)tableView didUnhighlightRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    cell.selectedBackgroundView.hidden = YES;
+}
+
+#pragma mark - NITableViewModelDelegate
 
 - (UITableViewCell *)tableViewModel:(NITableViewModel *)tableViewModel cellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath withObject:(id)object {
     if (_delegate && [object conformsToProtocol:@protocol(HMCellObject)]) {
@@ -97,6 +111,10 @@
 
 - (BOOL)tableViewModel:(NIMutableTableViewModel *)tableViewModel canEditObject:(id)object atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView {
     return YES;
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
 }
 
 @end

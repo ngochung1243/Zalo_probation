@@ -40,11 +40,12 @@
     _collectionView.dataSource = _modelDataSource;
 }
 
-#pragma mark - Pick Action
+#pragma mark - Handle Action
+
 - (void)pickModel:(id)model {
     if (![_pickModels containsObject:model]) {
         [_pickModels addObject:model];
-        NSArray *indexPaths = [_modelDataSource addObject:[HMContactCollectionObject objectWithContact:model]];
+        NSArray *indexPaths = [_modelDataSource addObject:[HMContactCollectionObject objectWithModel:model]];
         [_collectionView insertItemsAtIndexPaths:indexPaths];
     }
 }
@@ -63,6 +64,7 @@
 }
 
 #pragma mark - UICollectionViewDelegate
+
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
     if (cell.alpha == 1) {

@@ -8,6 +8,7 @@ target 'Test_Nimbus' do
 pod 'DGActivityIndicatorView'
 pod 'BEMCheckBox'
 pod 'Masonry'
+pod 'RegexKitLite'
 
   # Pods for Test_Nimbus
 

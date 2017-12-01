@@ -11,13 +11,10 @@
 #import <Contacts/Contacts.h>
 #import "HMContactModel.h"
 #import "Constaint.h"
+#import "HMContactTableObject.h"
 
-@interface HMContactCollectionObject : NSObject <NICollectionViewCellObject>
-
-@property(strong, nonatomic) HMContactModel *contact;
-
-+ (instancetype)objectWithContact:(HMContactModel *)contact;
-
+@interface HMContactCollectionObject : NSObject <NICollectionViewCellObject, HMCellObject>
+@property(strong, nonatomic) id model;
 @end
 
 @interface HMContactCollectionCell: UICollectionViewCell <NICollectionViewCell>

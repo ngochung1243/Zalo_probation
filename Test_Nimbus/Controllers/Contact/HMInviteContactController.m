@@ -24,9 +24,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     _contacts = [NSMutableArray new];
-    self.view.backgroundColor = [UIColor colorWithRed:205.0/255 green:205.0/255 blue:210.0/255 alpha:1];
     [ContactManager addDelegate:self];
     
+    self.title = NSLocalizedString(@"Choose friends", nil);
+    self.view.backgroundColor = [UIColor colorWithRed:205.0/255 green:205.0/255 blue:210.0/255 alpha:1];
+    
+    //Layout subviews
     _headerView = [[UIView alloc] init];
     _headerView.backgroundColor = UIColor.clearColor;
     [self.view addSubview:_headerView];
@@ -74,34 +77,34 @@
         make.edges.equalTo(_headerView).insets(PickerViewPadding);
     }];
     
+    //Load data
     [self loadContactWithCompletion:nil];
 }
 
-- (void)loadContactWithCompletion:(void(^)(BOOL))completionBlock {
-    if ([ContactManager hasAlreadyData]) {
-        [_contacts addObjectsFromArray:[ContactManager getAlreadyContacts]];
-        [_contactVC setData:_contacts];
-        if (completionBlock) {
-            completionBlock(YES);
-        }
-        
-        return;
-    }
+- (void)setupNavigationBar {
     
-    [ContactManager requestPermissionInQueue:mainQueue completion:^(BOOL granted, NSError *error) {
+}
+
+//Load all contacts
+- (void)loadContactWithCompletion:(void(^)(BOOL))completionBlock {
+    
+    __weak __typeof__(self) weakSelf = self;
+    [ContactManager requestPermissionInQueue:mainQueue completion:^(BOOL granted, NSError *error) { //Request permission before
         if (granted) {
-//            [self getAllContactsWithCompletion:completionBlock];
-            [self getAllContactsSequence];
+//            [weakSelf getAllContactsWithCompletion:completionBlock]; //Request all contacts
+            [weakSelf getAllContactsSeqWithSegCount:50 completion:completionBlock];
             return;
         }
         
-        if (error && [error isKindOfClass:[HMPermissionError class]]) {
+        if (error && [error isKindOfClass:[HMPermissionError class]]) { //If request permission error, check the error type and handle it
             HMPermissionError *permissionError = (HMPermissionError *)error;
             switch (permissionError.errorType) {
-                case HMPermissionErrorTypeDenied: {
+                case HMPermissionErrorTypeDenied: { //If user denied the permission, show apps setting
                     [HMAlertUtils showSettingAlertInController:self activeBlock:^{
                         if (@available(iOS 10.0, *)) {
-                            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
+                            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]
+                                                               options:@{}
+                                                     completionHandler:nil];
                         } else {
                             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
                         }
@@ -109,12 +112,6 @@
                     } passiveBlock:nil];
                     break;
                 }
-                case HMPermissionErrorTypeRestricted:
-                    break;
-                case HMPermissionErrorTypeUnknown:
-                    break;
-                case HMPermissionErrorTypeNotDetermined:
-                    break;
                 default:
                     break;
             }
@@ -124,31 +121,48 @@
     }];
 }
 
+//Get all contacts of device
 - (void)getAllContactsWithCompletion:(void(^)(BOOL))completionBlock {
     [_contacts removeAllObjects];
-    [ContactManager getAllContactsInQueue:mainQueue modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
-        if (!error) {
-            [_contacts addObjectsFromArray:contactModels];
-            [_contactVC setData:contactModels];
-            completionBlock(YES);
-        } else {
-            //Handle error;
-            completionBlock(NO);
+    
+    __weak __typeof__(self) weakSelf = self;
+    [ContactManager getAllContactsWithReturnQueue:mainQueue modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
+        if (!error) { //If got all contacts, put them to contact view controller to handle them
+            [weakSelf.contacts addObjectsFromArray:contactModels];
+            [weakSelf.contactVC setData:contactModels];
+            if (completionBlock) {
+                completionBlock(YES);
+            }
+        } else { //Otherwise, return NO result
+            if (completionBlock) {
+                //Handle error;
+                completionBlock(NO);
+            }
         }
     }];
 }
 
-- (void)getAllContactsSequence {
-    [ContactManager getAllContactsSequenceInQueue:mainQueue
+//Get all contacts of device with sequence block models
+- (void)getAllContactsSeqWithSegCount:(NSUInteger)seqCount completion:(void(^)(BOOL))completionBlock {
+    __weak __typeof__(self) weakSelf = self;
+    [ContactManager getAllContactsSeqWithReturnQueue:mainQueue
                                        modelClass:[HMContactModel class]
-                                    sequenceCount:50
-                                         sequence:^(NSArray *contactModels) {
-        [_contactVC addData:contactModels];
-    } completion:^(NSError *error) {
-        return;
+                                    sequenceCount:seqCount
+                                         sequence:^(NSArray *contactModels) { //When received the seq block with models, put them to contact view controller to handle them
+                                     
+        [weakSelf.contacts addObjectsFromArray:contactModels];
+        [weakSelf.contactVC addData:contactModels];
+                                             
+    } completion:^(NSError *error) { //When received the completion block, check the error and return YES if no error happened
+        if (completionBlock) {
+            completionBlock(error ? NO : YES);
+        }
     }];
 }
 
+#pragma mark - Support Func
+
+//Get models having full name mapping search string
 - (NSArray *)filterModelsWithString:(NSString *)string {
     if (!string || [string isEqualToString:@""]) {
         return _contacts;
@@ -160,18 +174,22 @@
         }
         return NO;
     }];
+    
     return [_contacts objectsAtIndexes:indexSet];
 }
 
 #pragma mark - UISearchBarDelegate
+
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    __weak __typeof__(self) weakSelf = self;
     dispatch_async(globalDefaultQueue, ^{
         NSArray *filterModels = [self filterModelsWithString:searchText];
-        [_contactVC setData:filterModels];
+        [weakSelf.contactVC setData:filterModels];
     });
 }
 
-#pragma mark - HMContactViewDelegate
+#pragma mark - HMContactVCDelegate
+
 - (void)hmContactViewController:(HMContactViewController *)contactVC didSelectModel:(id)model {
     if (_pickedContactVC.pickModels.count == 0) {
         [_headerView mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -201,11 +219,13 @@
 }
 
 #pragma mark - HMPickedContactDelegate
+
 - (void)hmPickedContactController:(HMPickedContactController *)pickedController didSelectModel:(id)model {
     [_contactVC scrollToModel:model];
 }
 
-#pragma mark - HMContactAdapterDelegate
+#pragma mark - HMContactManagerDelegate
+
 - (void)hmContactManager:(HMContactManager *)manager didReceiveContactsRequently:(NSArray *)contacts {
     [_contacts removeAllObjects];
     [_contacts addObjectsFromArray:contacts];

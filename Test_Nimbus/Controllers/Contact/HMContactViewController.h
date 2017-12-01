@@ -23,10 +23,10 @@
 @interface HMContactViewController : UITableViewController <UITableViewDelegate, NIMutableTableViewModelDelegate> {
     NSMutableArray *allGroupKeys;
     NSMutableDictionary *groupDict;
-    HMContactAdapter *adapter;
-    NIMutableTableViewModel *modelDataSource;
+    HMContactSectionAdapter *adapter;
 }
 
+@property(strong, nonatomic) NIMutableTableViewModel *modelDataSource;
 @property(weak, nonatomic) id<HMContactViewDelegate> delegate;
 
 - (void)setData:(NSArray *)models;

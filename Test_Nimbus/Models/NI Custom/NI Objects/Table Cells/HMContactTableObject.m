@@ -26,22 +26,31 @@
     return _model;
 }
 
+- (NSComparisonResult)compare:(id)object {
+    if ([object isKindOfClass:[HMContactTableObject class]]) {
+        return [self.model compare:((HMContactTableObject *)object).model];
+    }
+    
+    return NSOrderedSame;
+}
+
 @end
 
 @implementation HMContactTableCell
 
-#define defaultCellColor           UIColor.whiteColor
+#define DefaultCellColor           UIColor.whiteColor
 #define Padding UIEdgeInsetsMake(5, 10, 5, 10)
 #define NameFontSize 15
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
-        self.backgroundColor = defaultCellColor;
-        self.selectionStyle = UITableViewCellSelectionStyleBlue;
+        self.backgroundColor = DefaultCellColor;
+        self.selectionStyle = UITableViewCellSelectionStyleDefault;
+        self.selectedBackgroundView.hidden = YES;
         
         _avatarView = [[UIImageView alloc] init];
         _avatarView.alpha = 1;
-        _avatarView.backgroundColor = defaultCellColor;
+        _avatarView.backgroundColor = DefaultCellColor;
         [self.contentView addSubview:_avatarView];
         [_avatarView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.centerY.equalTo(self.contentView);

@@ -72,6 +72,7 @@
 		E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E0C1FCF9B880001577F /* UIImageView+Utils.m */; };
 		E5F32E111FCFADF60001577F /* HMImageMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */; };
 		E5F32E141FCFE5460001577F /* HMContactQueueEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */; };
+		E5F4B1BC1FD15E6E00C18259 /* HMContactNavBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F4B1BB1FD15E6E00C18259 /* HMContactNavBarController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -219,6 +220,8 @@
 		E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMImageMemoryCache.m; sourceTree = "<group>"; };
 		E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactQueueEntity.h; sourceTree = "<group>"; };
 		E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactQueueEntity.m; sourceTree = "<group>"; };
+		E5F4B1BA1FD15E6E00C18259 /* HMContactNavBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactNavBarController.h; sourceTree = "<group>"; };
+		E5F4B1BB1FD15E6E00C18259 /* HMContactNavBarController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactNavBarController.m; sourceTree = "<group>"; };
 		FF9034A941D5FA6F68821235 /* libPods-Test_Nimbus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Test_Nimbus.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -267,15 +270,12 @@
 		E508BF241FC69B74009DDFE2 /* Test_Nimbus */ = {
 			isa = PBXGroup;
 			children = (
-				E55F7B9D1FCE5F9F008F1B85 /* Common */,
-				E55F7B961FCE5B44008F1B85 /* Adapter */,
 				E5EDAFD61FC7DAE70030EDD6 /* Controllers */,
 				E5EDAFD41FC7DAC70030EDD6 /* Views */,
 				E5F09A0D1FCBA45700048FD3 /* Models */,
-				E57DB92B1FCC2E58008587EE /* NI Custom */,
-				E5F09A0C1FCBA43100048FD3 /* Utils */,
-				E521C1F21FC6DFD0001EAC12 /* Category */,
-				E5EDAFF21FC7F79A0030EDD6 /* Define */,
+				E55F7B961FCE5B44008F1B85 /* Adapter */,
+				E5F4B1921FD0E4CA00C18259 /* Manager */,
+				E55F7B9D1FCE5F9F008F1B85 /* Common */,
 				E5EDAFDD1FC7DB3A0030EDD6 /* Resource */,
 				E508BF251FC69B74009DDFE2 /* AppDelegate.h */,
 				E508BF261FC69B74009DDFE2 /* AppDelegate.m */,
@@ -418,10 +418,6 @@
 			children = (
 				E55F7B971FCE5B66008F1B85 /* HMContactAdapter.h */,
 				E55F7B981FCE5B66008F1B85 /* HMContactAdapter.m */,
-				E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */,
-				E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */,
-				75271BFC1FD0C47C00605D09 /* HMContactManager.h */,
-				75271BFD1FD0C47C00605D09 /* HMContactManager.m */,
 			);
 			path = Adapter;
 			sourceTree = "<group>";
@@ -429,6 +425,9 @@
 		E55F7B9D1FCE5F9F008F1B85 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				E5F09A0C1FCBA43100048FD3 /* Utils */,
+				E521C1F21FC6DFD0001EAC12 /* Category */,
+				E5EDAFF21FC7F79A0030EDD6 /* Define */,
 				E55F7B9E1FCE5FA7008F1B85 /* Error */,
 			);
 			path = Common;
@@ -464,14 +463,9 @@
 		E5EDAFD61FC7DAE70030EDD6 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E5F4B1B91FD1477200C18259 /* Contact */,
 				E5EDAFD81FC7DB040030EDD6 /* HMCatalogViewController.h */,
 				E5EDAFD71FC7DB040030EDD6 /* HMCatalogViewController.m */,
-				E55F7B931FCE59F7008F1B85 /* HMInviteContactController.h */,
-				E55F7B941FCE59F7008F1B85 /* HMInviteContactController.m */,
-				E55F7B8D1FCE53B9008F1B85 /* HMPickedContactController.h */,
-				E55F7B8E1FCE53B9008F1B85 /* HMPickedContactController.m */,
-				E55F7B901FCE542D008F1B85 /* HMContactViewController.h */,
-				E55F7B911FCE542D008F1B85 /* HMContactViewController.m */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -559,6 +553,8 @@
 		E5F09A0D1FCBA45700048FD3 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E57DB92B1FCC2E58008587EE /* NI Custom */,
+				E5F4B1931FD0E4EE00C18259 /* Entity */,
 				E5F09A0E1FCBA4A400048FD3 /* HMBaseModel.h */,
 				E5F09A0F1FCBA4A400048FD3 /* HMBaseModel.m */,
 				E57DB9281FCBF65F008587EE /* HMContactModel.h */,
@@ -574,6 +570,39 @@
 				E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */,
 			);
 			path = "NI Cache";
+			sourceTree = "<group>";
+		};
+		E5F4B1921FD0E4CA00C18259 /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				75271BFC1FD0C47C00605D09 /* HMContactManager.h */,
+				75271BFD1FD0C47C00605D09 /* HMContactManager.m */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		E5F4B1931FD0E4EE00C18259 /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */,
+				E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */,
+			);
+			path = Entity;
+			sourceTree = "<group>";
+		};
+		E5F4B1B91FD1477200C18259 /* Contact */ = {
+			isa = PBXGroup;
+			children = (
+				E55F7B931FCE59F7008F1B85 /* HMInviteContactController.h */,
+				E55F7B941FCE59F7008F1B85 /* HMInviteContactController.m */,
+				E55F7B8D1FCE53B9008F1B85 /* HMPickedContactController.h */,
+				E55F7B8E1FCE53B9008F1B85 /* HMPickedContactController.m */,
+				E55F7B901FCE542D008F1B85 /* HMContactViewController.h */,
+				E55F7B911FCE542D008F1B85 /* HMContactViewController.m */,
+				E5F4B1BA1FD15E6E00C18259 /* HMContactNavBarController.h */,
+				E5F4B1BB1FD15E6E00C18259 /* HMContactNavBarController.m */,
+			);
+			path = Contact;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -707,6 +736,7 @@
 				E508BF6F1FC6A04B009DDFE2 /* NISnapshotRotation.m in Sources */,
 				E508BF741FC6A04B009DDFE2 /* NIActions.m in Sources */,
 				E521C1DE1FC6B0D7001EAC12 /* NITableViewModel.m in Sources */,
+				E5F4B1BC1FD15E6E00C18259 /* HMContactNavBarController.m in Sources */,
 				E508BF7D1FC6A04B009DDFE2 /* NIRuntimeClassModifications.m in Sources */,
 				E521C1E01FC6B0D7001EAC12 /* NIFormCellCatalog.m in Sources */,
 				E5EDAFFC1FC8175A0030EDD6 /* HMContactTableObject.m in Sources */,
