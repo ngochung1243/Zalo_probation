@@ -6,7 +6,6 @@ target 'Test_Nimbus' do
   # use_frameworks!
 
 pod 'DGActivityIndicatorView'
-pod 'BEMCheckBox'
 pod 'Masonry'
 pod 'RegexKitLite'
 

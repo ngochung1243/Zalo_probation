@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NimbusCollections.h"
-#import "HMContactCollectionObject.h"
+#import "HMCTCollectionObject.h"
 
 @class HMPickedContactController;
 

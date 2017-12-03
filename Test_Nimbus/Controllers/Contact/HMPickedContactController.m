@@ -45,7 +45,7 @@
 - (void)pickModel:(id)model {
     if (![_pickModels containsObject:model]) {
         [_pickModels addObject:model];
-        NSArray *indexPaths = [_modelDataSource addObject:[HMContactCollectionObject objectWithModel:model]];
+        NSArray *indexPaths = [_modelDataSource addObject:[HMCTCollectionObject objectWithModel:model]];
         [_collectionView insertItemsAtIndexPaths:indexPaths];
     }
 }

@@ -64,15 +64,14 @@
 		E5EDAFEF1FC7F4190030EDD6 /* NICollectionViewCellFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFE71FC7F4190030EDD6 /* NICollectionViewCellFactory.m */; };
 		E5EDAFF01FC7F4190030EDD6 /* NICollectionViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFE81FC7F4190030EDD6 /* NICollectionViewModel.m */; };
 		E5EDAFF11FC7F4190030EDD6 /* NIMutableCollectionViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFEA1FC7F4190030EDD6 /* NIMutableCollectionViewModel.m */; };
-		E5EDAFF91FC80E550030EDD6 /* HMContactCollectionObject.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFF81FC80E550030EDD6 /* HMContactCollectionObject.m */; };
-		E5EDAFFC1FC8175A0030EDD6 /* HMContactTableObject.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFFB1FC8175A0030EDD6 /* HMContactTableObject.m */; };
+		E5EDAFF91FC80E550030EDD6 /* HMCTCollectionObject.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFF81FC80E550030EDD6 /* HMCTCollectionObject.m */; };
+		E5EDAFFC1FC8175A0030EDD6 /* HMCTTableObject.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFFB1FC8175A0030EDD6 /* HMCTTableObject.m */; };
 		E5F09A101FCBA4A400048FD3 /* HMBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F09A0F1FCBA4A400048FD3 /* HMBaseModel.m */; };
 		E5F09A161FCBA6A500048FD3 /* DataFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F09A151FCBA6A500048FD3 /* DataFactory.m */; };
 		E5F09A191FCBA6E400048FD3 /* FileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F09A181FCBA6E400048FD3 /* FileUtils.m */; };
 		E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E0C1FCF9B880001577F /* UIImageView+Utils.m */; };
 		E5F32E111FCFADF60001577F /* HMImageMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */; };
 		E5F32E141FCFE5460001577F /* HMContactQueueEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */; };
-		E5F4B1BC1FD15E6E00C18259 /* HMContactNavBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F4B1BB1FD15E6E00C18259 /* HMContactNavBarController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -204,10 +203,10 @@
 		E5EDAFEC1FC7F4190030EDD6 /* NICollectionViewCellFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NICollectionViewCellFactory.h; path = nimbus/src/collections/src/NICollectionViewCellFactory.h; sourceTree = SOURCE_ROOT; };
 		E5EDAFED1FC7F4190030EDD6 /* NIMutableCollectionViewModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NIMutableCollectionViewModel.h; path = nimbus/src/collections/src/NIMutableCollectionViewModel.h; sourceTree = SOURCE_ROOT; };
 		E5EDAFF31FC7F7B40030EDD6 /* Constaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constaint.h; sourceTree = "<group>"; };
-		E5EDAFF71FC80E550030EDD6 /* HMContactCollectionObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactCollectionObject.h; sourceTree = "<group>"; };
-		E5EDAFF81FC80E550030EDD6 /* HMContactCollectionObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactCollectionObject.m; sourceTree = "<group>"; };
-		E5EDAFFA1FC8175A0030EDD6 /* HMContactTableObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactTableObject.h; sourceTree = "<group>"; };
-		E5EDAFFB1FC8175A0030EDD6 /* HMContactTableObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactTableObject.m; sourceTree = "<group>"; };
+		E5EDAFF71FC80E550030EDD6 /* HMCTCollectionObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMCTCollectionObject.h; sourceTree = "<group>"; };
+		E5EDAFF81FC80E550030EDD6 /* HMCTCollectionObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMCTCollectionObject.m; sourceTree = "<group>"; };
+		E5EDAFFA1FC8175A0030EDD6 /* HMCTTableObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMCTTableObject.h; sourceTree = "<group>"; };
+		E5EDAFFB1FC8175A0030EDD6 /* HMCTTableObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMCTTableObject.m; sourceTree = "<group>"; };
 		E5F09A0E1FCBA4A400048FD3 /* HMBaseModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMBaseModel.h; sourceTree = "<group>"; };
 		E5F09A0F1FCBA4A400048FD3 /* HMBaseModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMBaseModel.m; sourceTree = "<group>"; };
 		E5F09A141FCBA6A500048FD3 /* DataFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataFactory.h; sourceTree = "<group>"; };
@@ -220,8 +219,6 @@
 		E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMImageMemoryCache.m; sourceTree = "<group>"; };
 		E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactQueueEntity.h; sourceTree = "<group>"; };
 		E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactQueueEntity.m; sourceTree = "<group>"; };
-		E5F4B1BA1FD15E6E00C18259 /* HMContactNavBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactNavBarController.h; sourceTree = "<group>"; };
-		E5F4B1BB1FD15E6E00C18259 /* HMContactNavBarController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactNavBarController.m; sourceTree = "<group>"; };
 		FF9034A941D5FA6F68821235 /* libPods-Test_Nimbus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Test_Nimbus.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -522,8 +519,8 @@
 		E5EDAFF51FC80DB90030EDD6 /* Collection Cells */ = {
 			isa = PBXGroup;
 			children = (
-				E5EDAFF71FC80E550030EDD6 /* HMContactCollectionObject.h */,
-				E5EDAFF81FC80E550030EDD6 /* HMContactCollectionObject.m */,
+				E5EDAFF71FC80E550030EDD6 /* HMCTCollectionObject.h */,
+				E5EDAFF81FC80E550030EDD6 /* HMCTCollectionObject.m */,
 			);
 			path = "Collection Cells";
 			sourceTree = "<group>";
@@ -531,8 +528,8 @@
 		E5EDAFF61FC80DD40030EDD6 /* Table Cells */ = {
 			isa = PBXGroup;
 			children = (
-				E5EDAFFA1FC8175A0030EDD6 /* HMContactTableObject.h */,
-				E5EDAFFB1FC8175A0030EDD6 /* HMContactTableObject.m */,
+				E5EDAFFA1FC8175A0030EDD6 /* HMCTTableObject.h */,
+				E5EDAFFB1FC8175A0030EDD6 /* HMCTTableObject.m */,
 			);
 			path = "Table Cells";
 			sourceTree = "<group>";
@@ -599,8 +596,6 @@
 				E55F7B8E1FCE53B9008F1B85 /* HMPickedContactController.m */,
 				E55F7B901FCE542D008F1B85 /* HMContactViewController.h */,
 				E55F7B911FCE542D008F1B85 /* HMContactViewController.m */,
-				E5F4B1BA1FD15E6E00C18259 /* HMContactNavBarController.h */,
-				E5F4B1BB1FD15E6E00C18259 /* HMContactNavBarController.m */,
 			);
 			path = Contact;
 			sourceTree = "<group>";
@@ -736,10 +731,9 @@
 				E508BF6F1FC6A04B009DDFE2 /* NISnapshotRotation.m in Sources */,
 				E508BF741FC6A04B009DDFE2 /* NIActions.m in Sources */,
 				E521C1DE1FC6B0D7001EAC12 /* NITableViewModel.m in Sources */,
-				E5F4B1BC1FD15E6E00C18259 /* HMContactNavBarController.m in Sources */,
 				E508BF7D1FC6A04B009DDFE2 /* NIRuntimeClassModifications.m in Sources */,
 				E521C1E01FC6B0D7001EAC12 /* NIFormCellCatalog.m in Sources */,
-				E5EDAFFC1FC8175A0030EDD6 /* HMContactTableObject.m in Sources */,
+				E5EDAFFC1FC8175A0030EDD6 /* HMCTTableObject.m in Sources */,
 				E57DB9271FCBE966008587EE /* UIColor+Utils.m in Sources */,
 				E5EDAFEF1FC7F4190030EDD6 /* NICollectionViewCellFactory.m in Sources */,
 				E5099E6A1FCED30E006DAB4C /* HMAlertUtils.m in Sources */,
@@ -763,7 +757,7 @@
 				E508BF7F1FC6A04B009DDFE2 /* NIInMemoryCache.m in Sources */,
 				E508BF7E1FC6A04B009DDFE2 /* NIDebuggingTools.m in Sources */,
 				E521C1DB1FC6B0D7001EAC12 /* NICellCatalog.m in Sources */,
-				E5EDAFF91FC80E550030EDD6 /* HMContactCollectionObject.m in Sources */,
+				E5EDAFF91FC80E550030EDD6 /* HMCTCollectionObject.m in Sources */,
 				E521C1DF1FC6B0D7001EAC12 /* NIRadioGroup.m in Sources */,
 				E521C1DC1FC6B0D7001EAC12 /* NICellBackgrounds.m in Sources */,
 				E55F7B8F1FCE53B9008F1B85 /* HMPickedContactController.m in Sources */,

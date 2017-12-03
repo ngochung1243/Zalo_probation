@@ -28,7 +28,7 @@
     
     allGroupKeys = [NSMutableArray new];
     groupDict = [NSMutableDictionary new];
-    adapter = [[HMContactSectionAdapter alloc] initWithObjectClass:[HMContactTableObject class]];
+    adapter = [[HMContactSectionAdapter alloc] initWithObjectClass:[HMCTTableObject class]];
 }
 
 #pragma mark - Handle Data

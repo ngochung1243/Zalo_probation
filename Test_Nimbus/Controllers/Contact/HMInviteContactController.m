@@ -24,7 +24,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     _contacts = [NSMutableArray new];
-    [ContactManager addDelegate:self];
     
     self.title = NSLocalizedString(@"Choose friends", nil);
     self.view.backgroundColor = [UIColor colorWithRed:205.0/255 green:205.0/255 blue:210.0/255 alpha:1];
@@ -81,55 +80,13 @@
     [self loadContactWithCompletion:nil];
 }
 
-- (void)setupNavigationBar {
-    
-}
-
 //Load all contacts
 - (void)loadContactWithCompletion:(void(^)(BOOL))completionBlock {
-    
     __weak __typeof__(self) weakSelf = self;
-    [ContactManager requestPermissionInQueue:mainQueue completion:^(BOOL granted, NSError *error) { //Request permission before
-        if (granted) {
-//            [weakSelf getAllContactsWithCompletion:completionBlock]; //Request all contacts
-            [weakSelf getAllContactsSeqWithSegCount:50 completion:completionBlock];
-            return;
-        }
-        
-        if (error && [error isKindOfClass:[HMPermissionError class]]) { //If request permission error, check the error type and handle it
-            HMPermissionError *permissionError = (HMPermissionError *)error;
-            switch (permissionError.errorType) {
-                case HMPermissionErrorTypeDenied: { //If user denied the permission, show apps setting
-                    [HMAlertUtils showSettingAlertInController:self activeBlock:^{
-                        if (@available(iOS 10.0, *)) {
-                            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]
-                                                               options:@{}
-                                                     completionHandler:nil];
-                        } else {
-                            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-                        }
-                    
-                    } passiveBlock:nil];
-                    break;
-                }
-                default:
-                    break;
-            }
-            
-            completionBlock(NO);
-        }
-    }];
-}
-
-//Get all contacts of device
-- (void)getAllContactsWithCompletion:(void(^)(BOOL))completionBlock {
-    [_contacts removeAllObjects];
-    
-    __weak __typeof__(self) weakSelf = self;
-    [ContactManager getAllContactsWithReturnQueue:mainQueue modelClass:[HMContactModel class] completion:^(NSArray *contactModels, NSError *error) {
+    [ContactManager getAllContactsWithBlock:^(NSArray *models, NSError *error) {
         if (!error) { //If got all contacts, put them to contact view controller to handle them
-            [weakSelf.contacts addObjectsFromArray:contactModels];
-            [weakSelf.contactVC setData:contactModels];
+            [weakSelf.contacts addObjectsFromArray:models];
+            [weakSelf.contactVC setData:models];
             if (completionBlock) {
                 completionBlock(YES);
             }
@@ -139,25 +96,7 @@
                 completionBlock(NO);
             }
         }
-    }];
-}
-
-//Get all contacts of device with sequence block models
-- (void)getAllContactsSeqWithSegCount:(NSUInteger)seqCount completion:(void(^)(BOOL))completionBlock {
-    __weak __typeof__(self) weakSelf = self;
-    [ContactManager getAllContactsSeqWithReturnQueue:mainQueue
-                                       modelClass:[HMContactModel class]
-                                    sequenceCount:seqCount
-                                         sequence:^(NSArray *contactModels) { //When received the seq block with models, put them to contact view controller to handle them
-                                     
-        [weakSelf.contacts addObjectsFromArray:contactModels];
-        [weakSelf.contactVC addData:contactModels];
-                                             
-    } completion:^(NSError *error) { //When received the completion block, check the error and return YES if no error happened
-        if (completionBlock) {
-            completionBlock(error ? NO : YES);
-        }
-    }];
+    } inQueue:nil];
 }
 
 #pragma mark - Support Func
@@ -222,14 +161,6 @@
 
 - (void)hmPickedContactController:(HMPickedContactController *)pickedController didSelectModel:(id)model {
     [_contactVC scrollToModel:model];
-}
-
-#pragma mark - HMContactManagerDelegate
-
-- (void)hmContactManager:(HMContactManager *)manager didReceiveContactsRequently:(NSArray *)contacts {
-    [_contacts removeAllObjects];
-    [_contacts addObjectsFromArray:contacts];
-    [_contactVC setData:_contacts];
 }
 
 @end

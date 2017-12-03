@@ -11,7 +11,7 @@
 #import <Contacts/Contacts.h>
 #import "NimbusModels.h"
 #import "HMContactModel.h"
-#import "HMContactTableObject.h"
+#import "HMCTTableObject.h"
 
 @interface HMContactAdapter: NSObject {
 //    NSMutableArray *allGroupKeys;

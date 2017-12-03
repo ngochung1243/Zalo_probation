@@ -9,7 +9,7 @@
 #import "HMContactQueueEntity.h"
 #import "Constaint.h"
 
-@implementation HMContactQueueEntity
+@implementation HMCTEntity
 
 - (instancetype)init
 {
@@ -28,7 +28,7 @@
 
 @end
 
-@implementation HMContactPermissionQueueEntity
+@implementation HMCTPermissionEntity
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -39,7 +39,7 @@
 }
 
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue permissionBlock:(HMContactPermissionBlock)block {
+- (instancetype)initWithBlock:(HMCTPermissionBlock)block inQueue:(dispatch_queue_t)queue {
     if (self = [super initWithQueue:queue]) {
         _permissionBlock = block;
     }
@@ -48,7 +48,7 @@
 }
 @end
 
-@implementation HMContactGettingQueueEntity
+@implementation HMCTGettingEntity
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -59,7 +59,7 @@
 }
 
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue gettingBlock:(HMContactGettingBlock)block {
+- (instancetype)initWithBlock:(HMCTGettingBlock)block inQueue:(dispatch_queue_t)queue  {
     if (self = [super initWithQueue:queue]) {
         _gettingBlock = block;
     }
@@ -68,7 +68,7 @@
 }
 @end
 
-@implementation HMContactSequenceQueueEntity
+@implementation HMCTGettingSeqEntity
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -79,7 +79,7 @@
     return self;
 }
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue sequence:(HMContactSequenceBlock)sequenceBlock complete:(HMContactSequenceCompleteBlock)completeBlock {
+- (instancetype)initWithSequenceBlock:(HMCTGettingSeqBlock)sequenceBlock completionBlock:(HMCTCompletedBlock)completeBlock inQueue:(dispatch_queue_t)queue {
     if (self = [super initWithQueue:queue]) {
         _sequenceBlock = sequenceBlock;
         _completeBlock = completeBlock;

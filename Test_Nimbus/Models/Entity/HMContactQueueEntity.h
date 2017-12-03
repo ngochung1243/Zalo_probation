@@ -8,32 +8,32 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^HMContactPermissionBlock)(BOOL granted, NSError *error);
-typedef void (^HMContactGettingBlock)(NSArray *models, NSError *error);
-typedef void (^HMContactSequenceBlock)(NSArray *models);
-typedef void (^HMContactSequenceCompleteBlock)(NSError *error);
+typedef void (^HMCTPermissionBlock)(BOOL granted, NSError *error);
+typedef void (^HMCTGettingBlock)(NSArray *models, NSError *error);
+typedef void (^HMCTGettingSeqBlock)(NSArray *models);
+typedef void (^HMCTCompletedBlock)(NSError *error);
 
-@interface HMContactQueueEntity: NSObject
+@interface HMCTEntity: NSObject
 @property(strong, nonatomic) dispatch_queue_t queue;
 
 - (instancetype)initWithQueue:(dispatch_queue_t)queue;
 @end
 
-@interface HMContactPermissionQueueEntity: HMContactQueueEntity
-@property(copy, nonatomic) HMContactPermissionBlock permissionBlock;
+@interface HMCTPermissionEntity: HMCTEntity
+@property(copy, nonatomic) HMCTPermissionBlock permissionBlock;
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue permissionBlock:(HMContactPermissionBlock)block;
+- (instancetype)initWithBlock:(HMCTPermissionBlock)block inQueue:(dispatch_queue_t)queue;
 @end
 
-@interface HMContactGettingQueueEntity: HMContactQueueEntity
-@property(copy, nonatomic) HMContactGettingBlock gettingBlock;
+@interface HMCTGettingEntity: HMCTEntity
+@property(copy, nonatomic) HMCTGettingBlock gettingBlock;
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue gettingBlock:(HMContactGettingBlock)block;
+- (instancetype)initWithBlock:(HMCTGettingBlock)block inQueue:(dispatch_queue_t)queue;
 @end
 
-@interface HMContactSequenceQueueEntity: HMContactQueueEntity
-@property(copy, nonatomic) HMContactSequenceBlock sequenceBlock;
-@property(copy, nonatomic) HMContactSequenceCompleteBlock completeBlock;
+@interface HMCTGettingSeqEntity: HMCTEntity
+@property(copy, nonatomic) HMCTGettingSeqBlock sequenceBlock;
+@property(copy, nonatomic) HMCTCompletedBlock completeBlock;
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue sequence:(HMContactSequenceBlock)sequenceBlock complete:(HMContactSequenceCompleteBlock)completeBlock;
+- (instancetype)initWithSequenceBlock:(HMCTGettingSeqBlock)sequenceBlock completionBlock:(HMCTCompletedBlock)completeBlock inQueue:(dispatch_queue_t)queue;
 @end
