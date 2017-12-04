@@ -58,6 +58,9 @@
 		E57DB9241FCBD30D008587EE /* NSString+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E57DB9231FCBD30D008587EE /* NSString+Utils.m */; };
 		E57DB9271FCBE966008587EE /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E57DB9261FCBE966008587EE /* UIColor+Utils.m */; };
 		E57DB92A1FCBF65F008587EE /* HMContactModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E57DB9291FCBF65F008587EE /* HMContactModel.m */; };
+		E586B65A1FD5757A005AD46B /* HMURLUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = E586B6581FD5757A005AD46B /* HMURLUploadTask.m */; };
+		E586B65B1FD5757A005AD46B /* HMURLSessionManger.m in Sources */ = {isa = PBXBuildFile; fileRef = E586B6591FD5757A005AD46B /* HMURLSessionManger.m */; };
+		E586B65E1FD57694005AD46B /* HMUploadVC.m in Sources */ = {isa = PBXBuildFile; fileRef = E586B65D1FD57694005AD46B /* HMUploadVC.m */; };
 		E5EDAFD31FC7C33E0030EDD6 /* UIImage+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFD21FC7C33E0030EDD6 /* UIImage+Utils.m */; };
 		E5EDAFDB1FC7DB040030EDD6 /* HMCatalogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFD71FC7DB040030EDD6 /* HMCatalogViewController.m */; };
 		E5EDAFEE1FC7F4190030EDD6 /* NICollectionViewActions.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFE61FC7F4180030EDD6 /* NICollectionViewActions.m */; };
@@ -187,6 +190,12 @@
 		E57DB9261FCBE966008587EE /* UIColor+Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Utils.m"; sourceTree = "<group>"; };
 		E57DB9281FCBF65F008587EE /* HMContactModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactModel.h; sourceTree = "<group>"; };
 		E57DB9291FCBF65F008587EE /* HMContactModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactModel.m; sourceTree = "<group>"; };
+		E586B6561FD5757A005AD46B /* HMURLSessionManger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMURLSessionManger.h; sourceTree = "<group>"; };
+		E586B6571FD5757A005AD46B /* HMURLUploadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMURLUploadTask.h; sourceTree = "<group>"; };
+		E586B6581FD5757A005AD46B /* HMURLUploadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMURLUploadTask.m; sourceTree = "<group>"; };
+		E586B6591FD5757A005AD46B /* HMURLSessionManger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMURLSessionManger.m; sourceTree = "<group>"; };
+		E586B65C1FD57693005AD46B /* HMUploadVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMUploadVC.h; sourceTree = "<group>"; };
+		E586B65D1FD57694005AD46B /* HMUploadVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMUploadVC.m; sourceTree = "<group>"; };
 		E5EDAFD11FC7C33E0030EDD6 /* UIImage+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Utils.h"; sourceTree = "<group>"; };
 		E5EDAFD21FC7C33E0030EDD6 /* UIImage+Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Utils.m"; sourceTree = "<group>"; };
 		E5EDAFD71FC7DB040030EDD6 /* HMCatalogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMCatalogViewController.m; sourceTree = "<group>"; };
@@ -448,6 +457,26 @@
 			path = "NI Custom";
 			sourceTree = "<group>";
 		};
+		E586B6541FD57558005AD46B /* HMContactManager */ = {
+			isa = PBXGroup;
+			children = (
+				75271BFC1FD0C47C00605D09 /* HMContactManager.h */,
+				75271BFD1FD0C47C00605D09 /* HMContactManager.m */,
+			);
+			path = HMContactManager;
+			sourceTree = "<group>";
+		};
+		E586B6551FD5757A005AD46B /* HMURLSessionManager */ = {
+			isa = PBXGroup;
+			children = (
+				E586B6561FD5757A005AD46B /* HMURLSessionManger.h */,
+				E586B6571FD5757A005AD46B /* HMURLUploadTask.h */,
+				E586B6581FD5757A005AD46B /* HMURLUploadTask.m */,
+				E586B6591FD5757A005AD46B /* HMURLSessionManger.m */,
+			);
+			path = HMURLSessionManager;
+			sourceTree = "<group>";
+		};
 		E5EDAFD41FC7DAC70030EDD6 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -463,6 +492,8 @@
 				E5F4B1B91FD1477200C18259 /* Contact */,
 				E5EDAFD81FC7DB040030EDD6 /* HMCatalogViewController.h */,
 				E5EDAFD71FC7DB040030EDD6 /* HMCatalogViewController.m */,
+				E586B65C1FD57693005AD46B /* HMUploadVC.h */,
+				E586B65D1FD57694005AD46B /* HMUploadVC.m */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -572,8 +603,8 @@
 		E5F4B1921FD0E4CA00C18259 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				75271BFC1FD0C47C00605D09 /* HMContactManager.h */,
-				75271BFD1FD0C47C00605D09 /* HMContactManager.m */,
+				E586B6541FD57558005AD46B /* HMContactManager */,
+				E586B6551FD5757A005AD46B /* HMURLSessionManager */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -752,6 +783,7 @@
 				E508BF791FC6A04B009DDFE2 /* NIOperations.m in Sources */,
 				E5F09A191FCBA6E400048FD3 /* FileUtils.m in Sources */,
 				E5F32E141FCFE5460001577F /* HMContactQueueEntity.m in Sources */,
+				E586B65E1FD57694005AD46B /* HMUploadVC.m in Sources */,
 				E5EDAFF01FC7F4190030EDD6 /* NICollectionViewModel.m in Sources */,
 				E5EDAFD31FC7C33E0030EDD6 /* UIImage+Utils.m in Sources */,
 				E508BF7F1FC6A04B009DDFE2 /* NIInMemoryCache.m in Sources */,
@@ -761,12 +793,14 @@
 				E521C1DF1FC6B0D7001EAC12 /* NIRadioGroup.m in Sources */,
 				E521C1DC1FC6B0D7001EAC12 /* NICellBackgrounds.m in Sources */,
 				E55F7B8F1FCE53B9008F1B85 /* HMPickedContactController.m in Sources */,
+				E586B65A1FD5757A005AD46B /* HMURLUploadTask.m in Sources */,
 				E508BF731FC6A04B009DDFE2 /* NIImageUtilities.m in Sources */,
 				E508BF351FC69B75009DDFE2 /* main.m in Sources */,
 				E57DB9241FCBD30D008587EE /* NSString+Utils.m in Sources */,
 				E508BF6E1FC6A04B009DDFE2 /* NISDKAvailability.m in Sources */,
 				E5EDAFEE1FC7F4190030EDD6 /* NICollectionViewActions.m in Sources */,
 				E521C1F11FC6C92A001EAC12 /* NIInterapp.m in Sources */,
+				E586B65B1FD5757A005AD46B /* HMURLSessionManger.m in Sources */,
 				E508BF721FC6A04B009DDFE2 /* NIError.m in Sources */,
 				E508BF771FC6A04B009DDFE2 /* NINonRetainingCollections.m in Sources */,
 				E5EDAFF11FC7F4190030EDD6 /* NIMutableCollectionViewModel.m in Sources */,

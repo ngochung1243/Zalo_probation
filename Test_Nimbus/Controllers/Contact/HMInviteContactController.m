@@ -78,6 +78,31 @@
     
     //Load data
     [self loadContactWithCompletion:nil];
+    
+    
+//    dispatch_async(globalDefaultQueue, ^{
+//        for (int i = 0; i < 100; i ++) {
+//            [self loadContactWithCompletion:^(BOOL result) {
+//                NSLog(@"Default queue: %d", i);
+//            }];
+//        }
+//    });
+//    
+//    dispatch_async(globalHighQueue, ^{
+//        for (int i = 0; i < 100; i ++) {
+//            [ContactManager requestPermissionWithBlock:^(BOOL granted, NSError *error) {
+//                NSLog(@"High queue: %d", i);
+//            } inQueue:globalHighQueue];
+//        }
+//    });
+//    
+//    dispatch_async(globalBackgroundQueue, ^{
+//        for (int i = 0; i < 100; i ++) {
+//            [ContactManager requestPermissionWithBlock:^(BOOL granted, NSError *error) {
+//                NSLog(@"Background queue: %d", i);
+//            } inQueue:globalBackgroundQueue];
+//        }
+//    });
 }
 
 //Load all contacts

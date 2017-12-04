@@ -7,10 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "HMContactModel.h"
 
 typedef void (^HMCTPermissionBlock)(BOOL granted, NSError *error);
-typedef void (^HMCTGettingBlock)(NSArray *models, NSError *error);
-typedef void (^HMCTGettingSeqBlock)(NSArray *models);
+typedef void (^HMCTGettingBlock)(NSArray<HMContactModel *> *models, NSError *error);
+typedef void (^HMCTGettingSeqBlock)(NSArray<HMContactModel *> *models);
 typedef void (^HMCTCompletedBlock)(NSError *error);
 
 @interface HMCTEntity: NSObject

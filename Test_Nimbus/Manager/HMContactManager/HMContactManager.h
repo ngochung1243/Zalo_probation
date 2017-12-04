@@ -20,8 +20,8 @@
 /**
  Request contact permission in background serial queue
 
- @param queue The return queue
  @param completionBlock The block handling the result
+ @param queue The return queue
  */
 - (void)requestPermissionWithBlock:(HMCTPermissionBlock)completionBlock inQueue:(dispatch_queue_t)queue;
 
@@ -29,8 +29,8 @@
 /**
  Get all contacts in device in background serial queue. The function will request contact permission before.
 
- @param queue The return queue
  @param completionBlock The block handling the result
+ @param queue The return queue
  */
 - (void)getAllContactsWithBlock:(HMCTGettingBlock)completionBlock inQueue:(dispatch_queue_t)queue;
 
