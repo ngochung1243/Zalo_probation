@@ -8,10 +8,21 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^HMUploadProgressBlock)(float progress);
-typedef void (^HMUploadCompletionBlock)(NSURLResponse * _Nonnull reponse, NSError * _Nullable error);
-
 @class HMURLUploadTask;
+
+typedef NS_ENUM(NSInteger, HMURLUploadState) {
+    HMURLUploadStateNotRunning,
+    HMURLUploadStateRunning,
+    HMURLUploadStatePaused,
+    HMURLUploadStateCompleted,
+    HMURLUploadStateFailed
+};
+
+typedef void (^HMUploadProgressBlock)(NSUInteger taskIdentifier, float progress);
+typedef void (^HMUploadCompletionBlock)(NSUInteger taskIdentifier, NSURLResponse * _Nonnull reponse, NSError * _Nullable error);
+
+typedef void (^HMUploadChangeStateBlock)(HMURLUploadTask * _Nullable uploadTask);
+
 
 @protocol HMURLUploadDelegate <NSObject>
 
@@ -25,13 +36,15 @@ typedef void (^HMUploadCompletionBlock)(NSURLResponse * _Nonnull reponse, NSErro
 
 @property(nonatomic) NSUInteger taskIdentifier;
 
-@property(weak, nonatomic) NSURLSessionUploadTask * _Nullable uploadTask;
+@property(weak, nonatomic) NSURLSessionDataTask * _Nullable uploadTask;
 @property(strong, nonatomic) HMUploadProgressBlock _Nullable progressBlock;
 @property(strong, nonatomic) HMUploadCompletionBlock _Nullable completionBlock;
 @property(nonatomic) float uploadProgress;
-@property(weak, nonatomic) id<HMURLUploadDelegate> delegate;
+@property(weak, nonatomic) id<HMURLUploadDelegate> _Nullable delegate;
+@property(nonatomic) HMURLUploadState currentState;
+@property(strong, nonatomic) HMUploadChangeStateBlock _Nullable changeStateBlock;
 
-- (instancetype _Nullable)initWithUploadTask:(NSURLSessionUploadTask * _Nonnull)task;
+- (instancetype _Nullable)initWithTask:(NSURLSessionDataTask * _Nonnull)task;
 
 - (void)resume;
 - (void)cancel;

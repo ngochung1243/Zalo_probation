@@ -11,11 +11,13 @@
 
 @interface HMURLSessionManger : NSObject
 
-- (instancetype _Nullable)initWithConfiguration:(NSURLSessionConfiguration * _Nullable)configuration;
-
-- (void)setMaximumConcurrentUpload:(int)maxCount;
+- (instancetype _Nullable)initWithMaxConcurrentTaskCount:(NSUInteger)maxCount andConfiguration:(NSURLSessionConfiguration * _Nullable)configuration;
 
 - (void)cancelAllPendingUploadTask;
+
+- (HMURLUploadTask * _Nonnull)dataTaskWithRequest:(NSURLRequest * _Nonnull)request
+                                         progress:(HMUploadProgressBlock _Nullable)progressBlock
+                                  completionBlock:(HMUploadCompletionBlock _Nullable)completionBlock;
 
 - (HMURLUploadTask * _Nonnull)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
                      fromFile:(NSURL * _Nonnull)fileURL

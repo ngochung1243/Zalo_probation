@@ -8,9 +8,14 @@
 
 #import "HMUploadVC.h"
 #import "HMURLSessionManger.h"
+#import "HMUploadCell.h"
+#import "Constaint.h"
+#import "HMUploadAdapter.h"
 
-@interface HMUploadVC ()
-@property (strong, nonatomic) IBOutlet UIProgressView *progressView;
+@interface HMUploadVC () <UITableViewDataSource, HMUploadAdapterDelegate>
+
+@property(strong, nonatomic) HMUploadAdapter *adapter;
+@property(strong, nonatomic) UITableView *tableView;
 
 @end
 
@@ -18,33 +23,62 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _adapter = [[HMUploadAdapter alloc] initWithMaxConcurrentTaskCount:5];
+    _adapter.delegate = self;
+    
     // Do any additional setup after loading the view.
-    _progressView.progress = 0;
+    _tableView = [[UITableView alloc] initWithFrame:self.view.frame];
+    _tableView.backgroundColor = UIColor.whiteColor;
+    _tableView.rowHeight = 60;
+    _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    _tableView.dataSource = self;
+    [_tableView registerClass:[HMUploadCell class] forCellReuseIdentifier:[HMUploadCell description]];
+    [self.view addSubview:_tableView];
+    
+    [self setupNavigation];
 }
 
-- (IBAction)startUpload:(id)sender {
-    NSDictionary *headers = @{ @"content-type": @"multipart/form-data" };
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.cloudinary.com/v1_1/ngochung/image/upload?upload_preset=ngochung"]
-                                                           cachePolicy:NSURLRequestUseProtocolCachePolicy
-                                                       timeoutInterval:10.0];
-    [request setHTTPMethod:@"POST"];
-    [request setAllHTTPHeaderFields:headers];
-    
-    NSURL *fileUrl = [[NSBundle mainBundle] URLForResource:@"fullhd" withExtension:@"jpg"];
-
-    HMURLSessionManger *sessionManager = [[HMURLSessionManger alloc] initWithConfiguration:nil];
-    for (int i = 0; i < 10; i ++) {
-        HMURLUploadTask *uploadTask = [sessionManager uploadTaskWithRequest:request fromFile:fileUrl progress:^(float progress) {
-            NSLog(@"[HM] Upload file: %d - %f", i, progress);
-        } completionBlock:^(NSURLResponse * _Nonnull reponse, NSError * _Nullable error) {
-            if (error) {
-                NSLog(@"[HM] Upload file: %d - Error", i);
-            } else {
-                NSLog(@"[HM] Upload file: %d - Complete", i);
-            }
-        }];
-        [uploadTask resume];
-    }
+- (void)setupNavigation {
+    UIBarButtonItem *uploadAllBtn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Upload All", nil) style:UIBarButtonItemStyleDone target:self action:@selector(uploadAll)];
+    self.navigationItem.rightBarButtonItem = uploadAllBtn;
+    self.navigationItem.title = NSLocalizedString(@"Upload From", nil);
 }
+
+- (void)uploadAll {
+    [_adapter uploadNumberOfTask:10 progress:^(NSUInteger taskIdentifier, float progress) {
+        NSLog(@"[HM] Upload Task - Progress: %ld : %f", taskIdentifier, progress);
+        HMUploadCell *subcriptCell = _adapter.uploadSubcription[@(taskIdentifier)];
+        if (subcriptCell) {
+            subcriptCell.progressView.progress = progress;
+        }
+    } completionBlock:^(NSUInteger taskIdentifier, NSURLResponse * _Nonnull reponse, NSError * _Nullable error) {
+        NSLog(@"[HM] Upload Task - Completion: %ld : %@", taskIdentifier, error);
+    }];
+    [_tableView reloadData];
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return _adapter.uploadTasks.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HMUploadCell *cell = [tableView dequeueReusableCellWithIdentifier:[HMUploadCell description] forIndexPath:indexPath];
+    HMURLUploadTask *uploadTask = _adapter.uploadTasks[indexPath.row];
+    [cell populateData:uploadTask];
+    
+    [_adapter unsubcriptCell:cell];
+    
+    cell.taskIdentifier = uploadTask.taskIdentifier;
+    [_adapter subcriptCell:cell];
+    return cell;
+}
+
+#pragma mark - HMUploadDelegateAdapter
+
+- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeStateUplTaskAtIndexPath:(NSIndexPath *)indexPath {
+    [_tableView beginUpdates];
+    [_tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    [_tableView endUpdates];
+}
+
 @end

@@ -14,8 +14,6 @@
 #import "HMCTTableObject.h"
 
 @interface HMContactAdapter: NSObject {
-//    NSMutableArray *allGroupKeys;
-//    NSMutableDictionary *groupDict;
     NSMutableArray *objects;
     
     Class<HMCellObject> objectClass;

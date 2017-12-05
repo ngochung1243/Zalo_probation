@@ -10,6 +10,4 @@
 
 @interface HMUploadVC : UIViewController
 
-@property(strong, nonatomic) UITableView *tableView;
-
 @end

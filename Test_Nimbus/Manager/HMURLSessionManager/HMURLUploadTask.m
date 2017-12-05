@@ -7,6 +7,11 @@
 //
 
 #import "HMURLUploadTask.h"
+#import "Constaint.h"
+
+@interface HMURLUploadTask()
+
+@end
 
 @implementation HMURLUploadTask
 
@@ -15,11 +20,12 @@
         _uploadProgress = 0;
         _progressBlock = nil;
         _completionBlock = nil;
+        _currentState = HMURLUploadStateNotRunning;
     }
     return self;
 }
 
-- (instancetype)initWithUploadTask:(NSURLSessionUploadTask *)task {
+- (instancetype)initWithTask:(NSURLSessionDataTask *)task {
     if (self = [self init]) {
         _uploadTask = task;
         _taskIdentifier = task.taskIdentifier;
@@ -49,6 +55,18 @@
         [_delegate shouldToCancelHMURLUploadTask:self];
     } else {
         [_uploadTask cancel];
+    }
+}
+
+- (void)setCurrentState:(HMURLUploadState)currentState {
+    @synchronized(self) {
+        _currentState = currentState;
+        if (_changeStateBlock) {
+            dispatch_async(mainQueue, ^{
+                __weak __typeof__(self) weakSelf = self;
+                _changeStateBlock(weakSelf);
+            });
+        }
     }
 }
 
