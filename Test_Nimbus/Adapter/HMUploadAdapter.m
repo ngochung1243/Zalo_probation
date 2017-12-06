@@ -7,10 +7,12 @@
 //
 
 #import "HMUploadAdapter.h"
+#import "Constaint.h"
 
-@interface HMUploadAdapter()
+@interface HMUploadAdapter() <HMURLSessionManagerDelegate>
 
 @property(strong, nonatomic) HMURLSessionManger *sessionManager;
+@property(strong, nonatomic) dispatch_queue_t serialQueue;
 
 @end
 
@@ -20,19 +22,43 @@
     if (self = [super init]) {
         _uploadTasks = [NSMutableArray new];
         _uploadSubcription = [NSMutableDictionary new];
-        _sessionManager = [[HMURLSessionManger alloc] initWithMaxConcurrentTaskCount:maxCount andConfiguration:nil];
+//        _sessionManager = [[HMURLSessionManger alloc] initWithMaxConcurrentTaskCount:maxCount andConfiguration:nil];
+        _sessionManager = [HMURLSessionManger shareInstance];
+        _sessionManager.delegate = self;
+        
+        _serialQueue = dispatch_queue_create("com.hungmai.HMUploadAdater.serialQueue", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
 
-- (void)uploadNumberOfTask:(NSUInteger)numberTasks progress:(HMUploadProgressBlock)progressBlock completionBlock:(HMUploadCompletionBlock)completionBlock {
-    for (int i = 0; i < numberTasks; i ++) {
-        HMURLUploadTask *uploadTask = [self createUploadTaskWithProgress:progressBlock completionBlock:completionBlock];
-        if (uploadTask) {
-            [_uploadTasks addObject:uploadTask];
+- (void)dealloc {
+    NSLog(@"[HM] HMUploadAdapter - dealloc");
+    [_sessionManager invalidateAndCancel];
+}
+
+- (void)getAlreadyRunningTask {
+    _uploadTasks = [[_sessionManager getRunningUploadTasks] mutableCopy];
+}
+
+- (void)uploadNumberOfTask:(NSUInteger)numberTasks
+      progressBlockPerTask:(HMUploadProgressBlock)progressBlock
+    completionBlockPerTask:(HMUploadCompletionBlock)completionBlock
+         completionHandler:(void(^)(void))handler {
+    dispatch_async(_serialQueue, ^{
+        for (int i = 0; i < numberTasks; i ++) {
+            HMURLUploadTask *uploadTask = [self createUploadTaskWithProgress:progressBlock completionBlock:completionBlock];
+            if (uploadTask) {
+                [_uploadTasks addObject:uploadTask];
+            }
+            [uploadTask resume];
         }
-        [uploadTask resume];
-    }
+        
+        if (handler) {
+            dispatch_async(mainQueue, ^{
+                handler();
+            });
+        }
+    });
 }
 
 - (HMURLUploadTask *)createUploadTaskWithProgress:(HMUploadProgressBlock)progressBlock completionBlock:(HMUploadCompletionBlock)completionBlock {
@@ -68,40 +94,45 @@
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
     
-    HMURLUploadTask *uploadTask = [_sessionManager dataTaskWithRequest:request progress:^(NSUInteger taskIdentifier, float progress) {
-        NSLog(@"[HM] Upload Task - Progress: %ld : %f", taskIdentifier, progress);
-        HMUploadCell *subcriptCell = _uploadSubcription[@(taskIdentifier)];
-        if (subcriptCell) {
-            subcriptCell.progressView.progress = progress;
-        }
-    } completionBlock:^(NSUInteger taskIdentifier, NSURLResponse * _Nonnull reponse, NSError * _Nullable error) {
-        NSLog(@"[HM] Upload Task - Completion: %ld : %@", taskIdentifier, error);
-    }];
+    HMURLUploadTask *uploadTask = [_sessionManager uploadTaskWithStreamRequest:request progress:progressBlock completionBlock:completionBlock];
     
     __weak __typeof__(self) weakSelf = self;
-    
     uploadTask.changeStateBlock = ^(HMURLUploadTask * _Nullable uploadTask) {
         __typeof__(self) strongSelf = weakSelf;
         if (uploadTask && [strongSelf.uploadTasks containsObject:uploadTask]) {
-            NSUInteger taskIndex = [strongSelf.uploadTasks indexOfObject:uploadTask];
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:taskIndex inSection:0];
-            if (_delegate) {
-                [_delegate hmUploadAdapter:strongSelf didChangeStateUplTaskAtIndexPath:indexPath];
+            if (strongSelf.delegate) {
+                dispatch_async(mainQueue, ^{
+                    [strongSelf.delegate hmUploadAdapter:strongSelf didChangeStateUplTask:uploadTask];
+                });
             }
         }
     };
     return uploadTask;
 }
 
-- (void)subcriptCell:(HMUploadCell *)cell {
+- (void)subcriptTaskId:(NSUInteger)taskId withIndexPath:(NSIndexPath *)indexPath {
     @synchronized(self) {
-        [_uploadSubcription setObject:cell forKey:@(cell.taskIdentifier)];
+        [_uploadSubcription setObject:indexPath forKey:@(taskId)];
     }
 }
 
-- (void)unsubcriptCell:(HMUploadCell *)cell {
+- (void)unsubcriptTaskId:(NSUInteger)taskId {
     @synchronized(self) {
-        [_uploadSubcription removeObjectForKey:@(cell.taskIdentifier)];
+        [_uploadSubcription removeObjectForKey:@(taskId)];
+    }
+}
+
+#pragma mark - HMURLSessionManagerDelegate
+
+- (void)hmURLSessionManager:(HMURLSessionManger *)manager didProgressUpdate:(float)progress ofUploadTask:(HMURLUploadTask *)uploadTask {
+    if (_delegate) {
+        [_delegate hmUploadAdapter:self didProgressUpdate:progress ofUploadTask:uploadTask];
+    }
+}
+
+- (void)hmURLSessionManager:(HMURLSessionManger *)manager didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(NSError *)error {
+    if (_delegate) {
+        [_delegate hmUploadAdapter:self didCompleteUploadTask:uploadTask withError:error];
     }
 }
 

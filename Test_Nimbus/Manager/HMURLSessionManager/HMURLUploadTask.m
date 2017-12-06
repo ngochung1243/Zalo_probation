@@ -18,6 +18,9 @@
 - (instancetype)init {
     if (self = [super init]) {
         _uploadProgress = 0;
+        _totalBytes = 0;
+        _sendedBytes = 0;
+        
         _progressBlock = nil;
         _completionBlock = nil;
         _currentState = HMURLUploadStateNotRunning;
@@ -53,9 +56,8 @@
 - (void)cancel {
     if (_delegate) {
         [_delegate shouldToCancelHMURLUploadTask:self];
-    } else {
-        [_uploadTask cancel];
     }
+    [_uploadTask cancel];
 }
 
 - (void)setCurrentState:(HMURLUploadState)currentState {
@@ -68,6 +70,13 @@
             });
         }
     }
+}
+
+- (float)uploadProgress {
+    if (_totalBytes == 0) {
+        return 0;
+    }
+    return _sendedBytes / _totalBytes;
 }
 
 @end

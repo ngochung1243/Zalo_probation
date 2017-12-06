@@ -75,6 +75,7 @@
 
 - (void)populateData:(HMURLUploadTask *)uploadTask {
     _uploadTask = uploadTask;
+    _taskIdentifier = uploadTask.taskIdentifier;
     _progressView.progress = uploadTask.uploadProgress;
     
     switch (uploadTask.currentState) {
@@ -87,6 +88,7 @@
             break;
         case HMURLUploadStateCompleted:
         case HMURLUploadStateFailed:
+        case HMURLUploadStateCancel:
             _statusImv.hidden = NO;
             _resumeBtn.hidden = YES;
             _cancelBtn.hidden = YES;
@@ -114,6 +116,7 @@
             _statusImv.image = [UIImage imageNamed:@"ic_success"];
             break;
         case HMURLUploadStateFailed:
+        case HMURLUploadStateCancel:
             _statusImv.image = [UIImage imageNamed:@"ic_error"];
             break;
             
@@ -129,18 +132,14 @@
         return;
     }
     
-    if ([button isEqual:_resumeBtn] && _resumeBlock) {
+    if ([button isEqual:_resumeBtn]) {
         if (_uploadTask.currentState == HMURLUploadStateNotRunning || _uploadTask.currentState == HMURLUploadStatePaused) {
-            if (_resumeBlock) {
-                _resumeBlock();
-            }
+            [_uploadTask resume];
         } else if (_uploadTask.currentState == HMURLUploadStateRunning) {
-            if (_pauseBlock) {
-                _pauseBlock();
-            }
+            [_uploadTask pause];
         }
-    } else if ([button isEqual:_cancelBtn] && _cancelBtn) {
-        _cancelBlock();
+    } else if ([button isEqual:_cancelBtn]) {
+        [_uploadTask cancel];
     }
 }
 

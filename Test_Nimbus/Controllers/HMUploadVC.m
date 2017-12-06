@@ -27,7 +27,7 @@
     _adapter.delegate = self;
     
     // Do any additional setup after loading the view.
-    _tableView = [[UITableView alloc] initWithFrame:self.view.frame];
+    _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - 60)];
     _tableView.backgroundColor = UIColor.whiteColor;
     _tableView.rowHeight = 60;
     _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
@@ -38,6 +38,10 @@
     [self setupNavigation];
 }
 
+- (void)dealloc {
+    NSLog(@"[HM] HMUploadVC - dealloc");
+}
+
 - (void)setupNavigation {
     UIBarButtonItem *uploadAllBtn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Upload All", nil) style:UIBarButtonItemStyleDone target:self action:@selector(uploadAll)];
     self.navigationItem.rightBarButtonItem = uploadAllBtn;
@@ -45,16 +49,18 @@
 }
 
 - (void)uploadAll {
-    [_adapter uploadNumberOfTask:10 progress:^(NSUInteger taskIdentifier, float progress) {
-        NSLog(@"[HM] Upload Task - Progress: %ld : %f", taskIdentifier, progress);
-        HMUploadCell *subcriptCell = _adapter.uploadSubcription[@(taskIdentifier)];
-        if (subcriptCell) {
-            subcriptCell.progressView.progress = progress;
-        }
-    } completionBlock:^(NSUInteger taskIdentifier, NSURLResponse * _Nonnull reponse, NSError * _Nullable error) {
+    __weak __typeof__(self) weakSelf = self;
+    [_adapter uploadNumberOfTask:10 progressBlockPerTask:^(NSUInteger taskIdentifier, float progress) {
+        __typeof__(self) strongSelf = weakSelf;
+        
+    } completionBlockPerTask:^(NSUInteger taskIdentifier, NSURLResponse * _Nonnull reponse, NSError * _Nullable error) {
+        __typeof__(self) strongSelf = weakSelf;
         NSLog(@"[HM] Upload Task - Completion: %ld : %@", taskIdentifier, error);
+        [strongSelf.adapter unsubcriptTaskId:taskIdentifier];
+    } completionHandler:^{
+        __typeof__(self) strongSelf = weakSelf;
+        [strongSelf.tableView reloadData];
     }];
-    [_tableView reloadData];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -66,19 +72,33 @@
     HMURLUploadTask *uploadTask = _adapter.uploadTasks[indexPath.row];
     [cell populateData:uploadTask];
     
-    [_adapter unsubcriptCell:cell];
-    
-    cell.taskIdentifier = uploadTask.taskIdentifier;
-    [_adapter subcriptCell:cell];
+    [_adapter subcriptTaskId:uploadTask.taskIdentifier withIndexPath:indexPath];
     return cell;
 }
 
 #pragma mark - HMUploadDelegateAdapter
 
-- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeStateUplTaskAtIndexPath:(NSIndexPath *)indexPath {
-    [_tableView beginUpdates];
-    [_tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-    [_tableView endUpdates];
+- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeStateUplTask:(HMURLUploadTask *)uploadTask {
+    NSUInteger taskIndex = [_adapter.uploadTasks indexOfObject:uploadTask];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:taskIndex inSection:0];
+    HMUploadCell *cell = [_tableView cellForRowAtIndexPath:indexPath];
+    if (cell) {
+        [cell populateData:uploadTask];
+    }
+}
+
+- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didProgressUpdate:(float)progress ofUploadTask:(HMURLUploadTask *)uploadTask {
+    NSLog(@"[HM] Upload Task - Progress: %ld : %f", uploadTask.taskIdentifier, progress);
+    NSIndexPath *indexPath = adapter.uploadSubcription[@(uploadTask.taskIdentifier)];
+    HMUploadCell *cell = [_tableView cellForRowAtIndexPath:indexPath];
+    if (cell) {
+        cell.progressView.progress = progress;
+    }
+}
+
+- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(NSError *)error {
+    NSLog(@"[HM] Upload Task - Completion: %ld : %@", uploadTask.taskIdentifier, error);
+    [adapter unsubcriptTaskId:uploadTask.taskIdentifier];
 }
 
 @end

@@ -18,10 +18,6 @@
 @property(strong, nonatomic) UIButton *cancelBtn;
 @property(strong, nonatomic) UIImageView *statusImv;
 
-@property(weak, nonatomic) void(^resumeBlock)(void);
-@property(weak, nonatomic) void(^pauseBlock)(void);
-@property(weak, nonatomic) void(^cancelBlock)(void);
-
 - (void)populateData:(HMURLUploadTask *)uploadTask;
 
 @end

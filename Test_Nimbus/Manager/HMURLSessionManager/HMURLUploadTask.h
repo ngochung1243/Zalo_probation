@@ -14,6 +14,7 @@ typedef NS_ENUM(NSInteger, HMURLUploadState) {
     HMURLUploadStateNotRunning,
     HMURLUploadStateRunning,
     HMURLUploadStatePaused,
+    HMURLUploadStateCancel,
     HMURLUploadStateCompleted,
     HMURLUploadStateFailed
 };
@@ -35,11 +36,13 @@ typedef void (^HMUploadChangeStateBlock)(HMURLUploadTask * _Nullable uploadTask)
 @interface HMURLUploadTask : NSObject
 
 @property(nonatomic) NSUInteger taskIdentifier;
+@property(nonatomic) float totalBytes;
+@property(nonatomic) float sendedBytes;
+@property(nonatomic) float uploadProgress;
 
 @property(weak, nonatomic) NSURLSessionDataTask * _Nullable uploadTask;
 @property(strong, nonatomic) HMUploadProgressBlock _Nullable progressBlock;
 @property(strong, nonatomic) HMUploadCompletionBlock _Nullable completionBlock;
-@property(nonatomic) float uploadProgress;
 @property(weak, nonatomic) id<HMURLUploadDelegate> _Nullable delegate;
 @property(nonatomic) HMURLUploadState currentState;
 @property(strong, nonatomic) HMUploadChangeStateBlock _Nullable changeStateBlock;
