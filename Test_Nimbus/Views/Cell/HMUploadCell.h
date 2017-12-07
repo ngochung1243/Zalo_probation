@@ -16,6 +16,7 @@
 @property(strong, nonatomic) UIProgressView *progressView;
 @property(strong, nonatomic) UIButton *resumeBtn;
 @property(strong, nonatomic) UIButton *cancelBtn;
+@property(strong, nonatomic) UILabel *fileNameLbl;
 @property(strong, nonatomic) UIImageView *statusImv;
 
 - (void)populateData:(HMURLUploadTask *)uploadTask;

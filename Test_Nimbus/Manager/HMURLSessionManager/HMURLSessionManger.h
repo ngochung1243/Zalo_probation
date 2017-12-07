@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HMURLUploadTask.h"
+#import "HMPriorityQueue.h"
 
 @class HMURLSessionManger;
 
@@ -20,38 +21,32 @@
 
 - (void)hmURLSessionManager:(HMURLSessionManger * _Nonnull)manager didBecomeInvalidWithError:(NSError * _Nullable)error;
 - (void)didFinishEventsForBackgroundHmURLSessionManager:(HMURLSessionManger * _Nonnull)manager;
-
-@end
-
-@protocol HMURLSessionTaskDelegate <HMURLSessionManagerDelegate>
-
-- (void)hmURLSessionManager:(HMURLSessionManger * _Nonnull)manager didProgressUpdate:(float)progress ofUploadTask:(HMURLUploadTask * _Nonnull)uploadTask;
-- (void)hmURLSessionManager:(HMURLSessionManger * _Nonnull)manager didCompleteUploadTask:(HMURLUploadTask * _Nonnull)uploadTask withError:(NSError * _Nullable)error;
-- (void)hmURLSessionManager:(HMURLSessionManger * _Nonnull)manager didChangeState:(HMURLUploadState)newState  ofUploadTask:(HMURLUploadTask * _Nonnull)uploadTask;
+- (void)hmURLSessionManager:(HMURLSessionManger * _Nonnull)manager didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:error;
 
 @end
 
 @interface HMURLSessionManger : NSObject
 
-@property(weak, nonatomic) id<HMURLSessionTaskDelegate> _Nullable delegate;
-
-+ (instancetype _Nullable)shareInstance;
+@property(weak, nonatomic) id<HMURLSessionManagerDelegate> _Nullable delegate;
 
 - (instancetype _Nullable)initWithMaxConcurrentTaskCount:(NSUInteger)maxCount andConfiguration:(NSURLSessionConfiguration * _Nullable)configuration;
 
 - (HMURLUploadTask * _Nonnull)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
-                                           fromFile:(NSURL * _Nonnull)fileURL progressBlock:(HM)
+                                           fromFile:(NSURL * _Nonnull)fileURL;
 
 - (HMURLUploadTask * _Nonnull)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
                                            fromData:(NSData * _Nonnull)data;
 
-- (HMURLUploadTask * _Nonnull)uploadTaskWithStreamRequest:(NSURLRequest * _Nonnull)request;
+- (HMURLUploadTask * _Nonnull)uploadTaskWithStreamRequest:(NSURLRequest * _Nonnull)request
+                                                 priority:(HMURLUploadTaskPriority)priority
+                                                  inQueue:(dispatch_queue_t)queue;
 
 - (NSArray * _Nonnull)getRunningUploadTasks;
-- (NSArray * _Nonnull)getPendingUploadTasks;
+- (HMPriorityQueue * _Nonnull)getPendingUploadTasks;
 
 - (void)resumeAllCurrentTask;
 - (void)cancelAllPendingUploadTask;
+- (void)cancelAllRunningUploadTask;
 - (void)suspendAllRunningTask;
 
 - (void)invalidateAndCancel;

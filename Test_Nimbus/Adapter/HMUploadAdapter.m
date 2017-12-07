@@ -11,19 +11,38 @@
 
 @interface HMUploadAdapter() <HMURLSessionManagerDelegate>
 
+@property(strong, nonatomic) NSMutableDictionary *uploadTaskMapping;
+
 @property(strong, nonatomic) HMURLSessionManger *sessionManager;
 @property(strong, nonatomic) dispatch_queue_t serialQueue;
+
+@property(nonatomic) NSUInteger maxCount;
 
 @end
 
 @implementation HMUploadAdapter
 
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
+}
+
++ (instancetype)shareInstance {
+    static HMUploadAdapter *instance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] initWithMaxConcurrentTaskCount:3];
+    });
+    
+    return instance;
+}
+
 - (instancetype)initWithMaxConcurrentTaskCount:(NSUInteger)maxCount {
     if (self = [super init]) {
-        _uploadTasks = [NSMutableArray new];
-        _uploadSubcription = [NSMutableDictionary new];
-//        _sessionManager = [[HMURLSessionManger alloc] initWithMaxConcurrentTaskCount:maxCount andConfiguration:nil];
-        _sessionManager = [HMURLSessionManger shareInstance];
+        _uploadTaskMapping = [NSMutableDictionary new];
+        
+        _maxCount = maxCount;
+        _sessionManager = [[HMURLSessionManger alloc] initWithMaxConcurrentTaskCount:maxCount andConfiguration:nil];
         _sessionManager.delegate = self;
         
         _serialQueue = dispatch_queue_create("com.hungmai.HMUploadAdater.serialQueue", DISPATCH_QUEUE_SERIAL);
@@ -35,36 +54,109 @@
     NSLog(@"[HM] HMUploadAdapter - dealloc");
 }
 
-- (void)getAlreadyTask {
-    _uploadTasks = [[_sessionManager getRunningUploadTasks] mutableCopy];
-    [_uploadTasks addObjectsFromArray:[_sessionManager getPendingUploadTasks]];
-}
+#pragma mark - Public
 
-- (void)uploadNumberOfTask:(NSUInteger)numberTasks completionHandler:(void(^)(void))handler {
-    dispatch_async(_serialQueue, ^{
-        for (int i = 0; i < numberTasks; i ++) {
-            HMURLUploadTask *uploadTask = [self createUploadTask];
-            if (uploadTask) {
-                [_uploadTasks addObject:uploadTask];
-            }
-            [uploadTask resume];
+- (BOOL)setMaxConcurrentTaskCount:(NSUInteger)maxCount {
+    @synchronized(self) {
+        if (_uploadTaskMapping.count > 0) {
+            NSLog(@"[HM] HMUploadAdapter - Can't set max concurrent task count because still having upload tasks running or pending");
+            return NO;
         }
         
+        _maxCount = maxCount;
+        [_sessionManager invalidateAndCancel];
+        return YES;
+    }
+}
+
+- (NSArray<HMURLUploadTask *> *)getAlreadyTask {
+    NSMutableArray *uploadTasks = [[_sessionManager getRunningUploadTasks] mutableCopy];
+    [uploadTasks addObjectsFromArray:[[_sessionManager getPendingUploadTasks] allObjects]];
+    return uploadTasks;
+}
+
+- (void)uploadTaskWithHost:(NSString *)hostString
+                  filePath:(NSString *)filePath
+                    header:(NSDictionary *)header
+         completionHandler:(void(^)(HMURLUploadTask *))handler
+                   inQueue:(dispatch_queue_t)queue {
+    
+    [self uploadTaskWithHost:hostString
+                    filePath:filePath
+                      header:header
+           completionHandler:handler
+                    priority:HMURLUploadTaskPriorityMedium
+                     inQueue:queue];
+}
+
+- (void)uploadTaskWithHost:(NSString * _Nonnull)hostString
+                  filePath:(NSString * _Nonnull)filePath
+                    header:(NSDictionary * _Nullable)header
+         completionHandler:(void(^ _Nullable)(HMURLUploadTask * _Nullable uploadTask))handler
+                  priority:(HMURLUploadTaskPriority)priority
+                   inQueue:(dispatch_queue_t _Nullable)queue {
+    
+    if (!hostString || !filePath) {
         if (handler) {
-            dispatch_async(mainQueue, ^{
-                handler();
-            });
+            [self dispatchAsyncWithQueue:queue block:^{
+                handler(nil);
+            }];
+        }
+    }
+    
+    HMURLUploadTask *similarTask = [self getSimilarTaskWithHost:hostString filePath:filePath];
+    if (similarTask) {
+        if (handler) {
+            [self dispatchAsyncWithQueue:queue block:^{
+                handler(similarTask);
+            }];
+        }
+        return;
+    }
+    
+    dispatch_async(_serialQueue, ^{
+        NSDictionary *targetHeader = header ? header : [self getDefaultHeader];
+        NSURLRequest *request = [self makeRequestWithHost:hostString filePath:filePath header:targetHeader];
+        
+        HMURLUploadTask *uploadTask = [_sessionManager uploadTaskWithStreamRequest:request priority:priority inQueue:queue];
+        uploadTask.host = hostString;
+        uploadTask.filePath = filePath;
+        
+        [_uploadTaskMapping setObject:uploadTask forKey:@([self hashRequestWithHostString:hostString filePath:filePath])];
+        
+        if (handler) {
+            [self dispatchAsyncWithQueue:queue block:^{
+                handler(uploadTask);
+            }];
         }
     });
 }
 
-- (HMURLUploadTask *)createUploadTask {
-    NSDictionary *headers = @{ @"content-type": @"multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
-                               @"cache-control": @"no-cache",
-                               @"postman-token": @"4b78a659-7aea-6641-2121-64e6d630bda1" };
+- (void)pauseAllTask {
+    [_sessionManager suspendAllRunningTask];
+}
+
+- (void)cancelAllTask {
+    if (_uploadTaskMapping.count == 0) {
+        return;
+    }
     
-    NSURL *fileUrl = [[NSBundle mainBundle] URLForResource:@"GoTiengViet" withExtension:@"dmg"];
-    NSArray *parameters = @[ @{ @"name": @"file", @"fileName": [fileUrl path] } ];
+    [self dispatchAsyncWithQueue:_serialQueue block:^{
+        [_sessionManager cancelAllRunningUploadTask];
+        [_sessionManager cancelAllPendingUploadTask];
+        
+        [_uploadTaskMapping removeAllObjects];
+    }];
+}
+
+#pragma mark - Private
+
+- (NSDictionary *)getDefaultHeader {
+    return @{@"content-type": @"multipart/form-data"};
+}
+
+- (NSURLRequest *)makeRequestWithHost:(NSString *)hostString filePath:(NSString *)filePath header:(NSDictionary *)header {
+    NSArray *parameters = @[ @{ @"name": @"file", @"fileName": filePath } ];
     NSString *boundary = @"----WebKitFormBoundary7MA4YWxkTrZu0gW";
     
     NSError *error;
@@ -86,45 +178,51 @@
     [body appendFormat:@"\r\n--%@--\r\n", boundary];
     NSData *postData = [body dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.cloudinary.com/v1_1/ngochung/image/upload?upload_preset=ngochung"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:hostString]];
     [request setHTTPMethod:@"POST"];
-    [request setAllHTTPHeaderFields:headers];
+    [request setAllHTTPHeaderFields:header];
     [request setHTTPBody:postData];
-    
-    HMURLUploadTask *uploadTask = [_sessionManager uploadTaskWithStreamRequest:request];
-    
-    return uploadTask;
+    return request;
 }
 
-- (void)subcriptTaskId:(NSUInteger)taskId withIndexPath:(NSIndexPath *)indexPath {
-    @synchronized(self) {
-        [_uploadSubcription setObject:indexPath forKey:@(taskId)];
-    }
+- (NSInteger)hashRequestWithHostString:(NSString *)hostString filePath:(NSString *)filePath {
+    NSString *requestString = [NSString stringWithFormat:@"%@-%@", hostString, filePath];
+    return [requestString hash];
 }
 
-- (void)unsubcriptTaskId:(NSUInteger)taskId {
-    @synchronized(self) {
-        [_uploadSubcription removeObjectForKey:@(taskId)];
-    }
+- (HMURLUploadTask *)getSimilarTaskWithHost:(NSString *)hostString filePath:(NSString *)filePath {
+    NSInteger taskId = [self hashRequestWithHostString:hostString filePath:filePath];
+    HMURLUploadTask *similarTask = [_uploadTaskMapping objectForKey:@(taskId)];
+    return similarTask;
 }
 
-#pragma mark - HMURLSessionManagerDelegate
-
-- (void)hmURLSessionManager:(HMURLSessionManger *)manager didProgressUpdate:(float)progress ofUploadTask:(HMURLUploadTask *)uploadTask {
-    if (_delegate) {
-        [_delegate hmUploadAdapter:self didProgressUpdate:progress ofUploadTask:uploadTask];
-    }
+- (dispatch_queue_t)getValidQueueWithQueue:(dispatch_queue_t)queue {
+    return queue ? queue : mainQueue;
 }
 
-- (void)hmURLSessionManager:(HMURLSessionManger *)manager didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(NSError *)error {
-    if (_delegate) {
-        [_delegate hmUploadAdapter:self didCompleteUploadTask:uploadTask withError:error];
-    }
+- (void)dispatchAsyncWithQueue:queue block:(void(^)(void))block {
+    dispatch_queue_t validQueue = [self getValidQueueWithQueue:queue];
+    dispatch_async(validQueue, block);
 }
 
-- (void)hmURLSessionManager:(HMURLSessionManger *)manager didChangeState:(HMURLUploadState)newState ofUploadTask:(HMURLUploadTask *)uploadTask {
-    if (_delegate) {
-        [_delegate hmUploadAdapter:self didChangeState:newState ofUploadTask:uploadTask];
+- (void)hmURLSessionManager:(HMURLSessionManger *)manager didBecomeInvalidWithError:(NSError *)error {
+    __weak __typeof__(self) weakSelf = self;
+    [self dispatchAsyncWithQueue:_serialQueue block:^{
+        __typeof__(self) strongSelf = weakSelf;
+        NSLog(@"[HM] HMUploadAdapter - Re-init session manager");
+        strongSelf.sessionManager = [[HMURLSessionManger alloc] initWithMaxConcurrentTaskCount:strongSelf.maxCount andConfiguration:nil];
+        strongSelf.sessionManager.delegate = strongSelf;
+    }];
+}
+
+- (void)hmURLSessionManager:(HMURLSessionManger *)manager didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(id)error {
+    if (uploadTask) {
+        __weak __typeof__(self) weakSelf = self;
+        [self dispatchAsyncWithQueue:_serialQueue block:^{
+            __typeof__(self) strongSelf = weakSelf;
+            NSInteger taskHostId = [strongSelf hashRequestWithHostString:uploadTask.host filePath:uploadTask.filePath];
+            strongSelf.uploadTaskMapping[@(taskHostId)] = nil;
+        }];
     }
 }
 

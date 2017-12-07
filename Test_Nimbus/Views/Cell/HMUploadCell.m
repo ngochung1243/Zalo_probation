@@ -56,6 +56,14 @@
             make.size.mas_equalTo(HMUploadCellBtnSize);
         }];
         
+        _fileNameLbl = [UILabel new];
+        _fileNameLbl.textColor = UIColor.blackColor;
+        [self.contentView addSubview:_fileNameLbl];
+        [_fileNameLbl mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.equalTo(_resumeBtn);
+            make.left.equalTo(_cancelBtn.mas_right).offset(10);
+        }];
+        
         _statusImv = [UIImageView new];
         _statusImv.image = [UIImage imageNamed:@"ic_success"];
         _statusImv.hidden = YES;
@@ -74,54 +82,66 @@
 #pragma mark - Public
 
 - (void)populateData:(HMURLUploadTask *)uploadTask {
-    _uploadTask = uploadTask;
-    _taskIdentifier = uploadTask.taskIdentifier;
-    _progressView.progress = uploadTask.uploadProgress;
-    
-    switch (uploadTask.currentState) {
-        case HMURLUploadStateNotRunning:
-        case HMURLUploadStateRunning:
-        case HMURLUploadStatePaused:
-            _statusImv.hidden = YES;
-            _resumeBtn.hidden = NO;
-            _cancelBtn.hidden = NO;
-            break;
-        case HMURLUploadStateCompleted:
-        case HMURLUploadStateFailed:
-        case HMURLUploadStateCancel:
-            _statusImv.hidden = NO;
-            _resumeBtn.hidden = YES;
-            _cancelBtn.hidden = YES;
-            
-        default:
-            break;
-    }
-    
-    switch (uploadTask.currentState) {
-        case HMURLUploadStateNotRunning:
-            [_resumeBtn setImage:[UIImage imageNamed:@"ic_resume"] forState:UIControlStateNormal];
-            break;
-        case HMURLUploadStateRunning:
-            [_resumeBtn setImage:[UIImage imageNamed:@"ic_pause"] forState:UIControlStateNormal];
-            break;
-        case HMURLUploadStatePaused:
-            [_resumeBtn setImage:[UIImage imageNamed:@"ic_resume"] forState:UIControlStateNormal];
-            break;
-        default:
-            break;
-    }
-    
-    switch (uploadTask.currentState) {
-        case HMURLUploadStateCompleted:
-            _statusImv.image = [UIImage imageNamed:@"ic_success"];
-            break;
-        case HMURLUploadStateFailed:
-        case HMURLUploadStateCancel:
-            _statusImv.image = [UIImage imageNamed:@"ic_error"];
-            break;
-            
-        default:
-            break;
+    @synchronized(self) {
+        _uploadTask = uploadTask;
+        _taskIdentifier = uploadTask.taskIdentifier;
+        _progressView.progress = uploadTask.uploadProgress;
+        _fileNameLbl.text = [uploadTask.filePath lastPathComponent];
+        
+        switch (uploadTask.currentState) {
+            case HMURLUploadStateNotRunning:
+            case HMURLUploadStateRunning:
+            case HMURLUploadStatePaused:
+                _statusImv.hidden = YES;
+                _resumeBtn.hidden = NO;
+                _cancelBtn.hidden = NO;
+                break;
+                
+            case HMURLUploadStateCompleted:
+            case HMURLUploadStateFailed:
+            case HMURLUploadStateCancel:
+                _statusImv.hidden = NO;
+                _resumeBtn.hidden = YES;
+                _cancelBtn.hidden = YES;
+                break;
+                
+            case HMURLUploadStatePending:
+                _statusImv.hidden = NO;
+                _resumeBtn.hidden = NO;
+                _cancelBtn.hidden = NO;
+
+            default:
+                break;
+        }
+        
+        switch (uploadTask.currentState) {
+            case HMURLUploadStateNotRunning:
+            case HMURLUploadStatePaused:
+                [_resumeBtn setImage:[UIImage imageNamed:@"ic_resume"] forState:UIControlStateNormal];
+                break;
+            case HMURLUploadStateRunning:
+            case HMURLUploadStatePending:
+                [_resumeBtn setImage:[UIImage imageNamed:@"ic_pause"] forState:UIControlStateNormal];
+                break;
+            default:
+                break;
+        }
+        
+        switch (uploadTask.currentState) {
+            case HMURLUploadStatePending:
+                _statusImv.image = [UIImage imageNamed:@"ic_pending"];
+                break;
+            case HMURLUploadStateCompleted:
+                _statusImv.image = [UIImage imageNamed:@"ic_success"];
+                break;
+            case HMURLUploadStateFailed:
+            case HMURLUploadStateCancel:
+                _statusImv.image = [UIImage imageNamed:@"ic_error"];
+                break;
+                
+            default:
+                break;
+        }
     }
 }
 

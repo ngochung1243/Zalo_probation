@@ -8,33 +8,30 @@
 
 #import <Foundation/Foundation.h>
 #import "HMURLSessionManger.h"
-#import "HMUploadCell.h"
 
 @class HMUploadAdapter;
 
-@protocol HMUploadAdapterDelegate <NSObject>
-
-- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeState:(HMURLUploadState)newState  ofUploadTask:(HMURLUploadTask *)uploadTask;
-- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didProgressUpdate:(float)progress ofUploadTask:(HMURLUploadTask *)uploadTask;
-- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(NSError *)error;
-
-@end
-
 @interface HMUploadAdapter : NSObject
 
-@property(strong, nonatomic) NSMutableDictionary *uploadSubcription;
-@property(strong, nonatomic) NSMutableArray<HMURLUploadTask *> *uploadTasks;
-@property(weak, nonatomic) id<HMUploadAdapterDelegate> delegate;
++ (instancetype _Nonnull)shareInstance;
 
-- (instancetype)initWithMaxConcurrentTaskCount:(NSUInteger)maxCount;
+- (BOOL)setMaxConcurrentTaskCount:(NSUInteger)maxCount;
+- (NSArray<HMURLUploadTask *> * _Nonnull)getAlreadyTask;
 
-- (void)getAlreadyTask;
+- (void)uploadTaskWithHost:(NSString * _Nonnull)hostString
+                  filePath:(NSString * _Nonnull)filePath
+                    header:(NSDictionary * _Nullable)header
+         completionHandler:(void(^ _Nullable)(HMURLUploadTask * _Nullable uploadTask))handler
+                   inQueue:(dispatch_queue_t _Nullable)queue;
 
+- (void)uploadTaskWithHost:(NSString * _Nonnull)hostString
+                  filePath:(NSString * _Nonnull)filePath
+                    header:(NSDictionary * _Nullable)header
+         completionHandler:(void(^ _Nullable)(HMURLUploadTask * _Nullable uploadTask))handler
+                  priority:(HMURLUploadTaskPriority)priority
+                   inQueue:(dispatch_queue_t _Nullable)queue;
 
-- (void)uploadNumberOfTask:(NSUInteger)numberTasks completionHandler:(void(^)(void))handler;
+- (void)pauseAllTask;
+- (void)cancelAllTask;
 
-- (HMURLUploadTask *)createUploadTask;
-
-- (void)subcriptTaskId:(NSUInteger)taskId withIndexPath:(NSIndexPath *)indexPath;
-- (void)unsubcriptTaskId:(NSUInteger)taskId;
 @end

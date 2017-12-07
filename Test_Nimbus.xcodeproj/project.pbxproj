@@ -55,6 +55,7 @@
 		E521C1EB1FC6B4FC001EAC12 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E521C1E91FC6B4F3001EAC12 /* AddressBookUI.framework */; };
 		E521C1F11FC6C92A001EAC12 /* NIInterapp.m in Sources */ = {isa = PBXBuildFile; fileRef = E521C1EF1FC6C92A001EAC12 /* NIInterapp.m */; };
 		E521C1F51FC6E08B001EAC12 /* CNContact+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E521C1F41FC6E08B001EAC12 /* CNContact+Utils.m */; };
+		E557DBCD1FD91EA90071EF3F /* HMPriorityQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = E557DBCC1FD91EA90071EF3F /* HMPriorityQueue.m */; };
 		E55F7B891FCE48AE008F1B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E55F7B8B1FCE48AE008F1B85 /* Localizable.strings */; };
 		E55F7B8F1FCE53B9008F1B85 /* HMPickedContactController.m in Sources */ = {isa = PBXBuildFile; fileRef = E55F7B8E1FCE53B9008F1B85 /* HMPickedContactController.m */; };
 		E55F7B921FCE542D008F1B85 /* HMContactViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E55F7B911FCE542D008F1B85 /* HMContactViewController.m */; };
@@ -185,6 +186,8 @@
 		E521C1F01FC6C92A001EAC12 /* NimbusInterapp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NimbusInterapp.h; path = nimbus/src/interapp/src/NimbusInterapp.h; sourceTree = SOURCE_ROOT; };
 		E521C1F31FC6E08B001EAC12 /* CNContact+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CNContact+Utils.h"; sourceTree = "<group>"; };
 		E521C1F41FC6E08B001EAC12 /* CNContact+Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CNContact+Utils.m"; sourceTree = "<group>"; };
+		E557DBCB1FD91EA90071EF3F /* HMPriorityQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMPriorityQueue.h; sourceTree = "<group>"; };
+		E557DBCC1FD91EA90071EF3F /* HMPriorityQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMPriorityQueue.m; sourceTree = "<group>"; };
 		E55F7B871FCE488E008F1B85 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Main.strings; sourceTree = "<group>"; };
 		E55F7B881FCE488F008F1B85 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		E55F7B8A1FCE48AE008F1B85 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -511,6 +514,8 @@
 				E586B6581FD5757A005AD46B /* HMURLUploadTask.m */,
 				E518959F1FD673E000383EC6 /* HMNetworkManager.h */,
 				E51895A01FD673E000383EC6 /* HMNetworkManager.m */,
+				E557DBCB1FD91EA90071EF3F /* HMPriorityQueue.h */,
+				E557DBCC1FD91EA90071EF3F /* HMPriorityQueue.m */,
 			);
 			path = HMURLSessionManager;
 			sourceTree = "<group>";
@@ -824,6 +829,7 @@
 				E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */,
 				E508BF811FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m in Sources */,
 				75271BFE1FD0C47C00605D09 /* HMContactManager.m in Sources */,
+				E557DBCD1FD91EA90071EF3F /* HMPriorityQueue.m in Sources */,
 				E51895A11FD673E000383EC6 /* HMNetworkManager.m in Sources */,
 				E5F09A161FCBA6A500048FD3 /* DataFactory.m in Sources */,
 				E57DB92A1FCBF65F008587EE /* HMContactModel.m in Sources */,
