@@ -22,7 +22,6 @@
 @property(strong, nonatomic) NSMutableArray *pendingUploadTask;
 @property(strong, nonatomic) NSMutableArray *runningUploadTask;
 @property(strong, nonatomic) dispatch_queue_t processingQueue;
-@property(strong, nonatomic) dispatch_queue_t addingUploadQueue;
 @property(strong, nonatomic) dispatch_queue_t completionQueue;
 @property(strong, nonatomic) HMNetworkManager *networkManager;
 
@@ -43,7 +42,8 @@
 - (instancetype)initWithMaxConcurrentTaskCount:(NSUInteger)maxCount andConfiguration:(NSURLSessionConfiguration *)configuration {
     if (self = [super init]) {
         if (!configuration) {
-            configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+            configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"com.hungmai.HMURLSessionManager.bgConfiguration"];
+//            configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
         }
         NSUInteger maxUploadTaskCount = MIN(maxCount, MaxConnection);
         configuration.HTTPMaximumConnectionsPerHost = maxUploadTaskCount;
@@ -83,32 +83,26 @@
 
 #pragma mark - Public
 
-- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL progress:(HMUploadProgressBlock)progressBlock completionBlock:(HMUploadCompletionBlock)completionBlock {
+- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL {
     @synchronized(self) {
         NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request fromFile:fileURL];
-        HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask
-                                                            progress:progressBlock
-                                                     completionBlock:completionBlock];
+        HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask];
         return hmUploadTask;
     }
 }
 
-- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)data progress:(HMUploadProgressBlock)progressBlock completionBlock:(HMUploadCompletionBlock)completionBlock {
+- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)data {
     @synchronized(self) {
         NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request fromData:data];
-        HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask
-                                                            progress:progressBlock
-                                                     completionBlock:completionBlock];
+        HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask];
         return hmUploadTask;
     }
 }
 
-- (HMURLUploadTask *)uploadTaskWithStreamRequest:(NSURLRequest *)request progress:(HMUploadProgressBlock)progressBlock completionBlock:(HMUploadCompletionBlock)completionBlock {
+- (HMURLUploadTask *)uploadTaskWithStreamRequest:(NSURLRequest *)request {
     @synchronized(self) {
         NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithStreamedRequest:request];
-        HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask
-                                                            progress:progressBlock
-                                                     completionBlock:completionBlock];
+        HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask];
         return hmUploadTask;
     }
 }
@@ -152,6 +146,17 @@
     });
 }
 
+- (void)cancelAllRunningUploadTask {
+    __weak __typeof__(self) weakSelf = self;
+    dispatch_async(_completionQueue, ^{
+        __typeof__(self) strongSelf = weakSelf;
+        [strongSelf.runningUploadTask enumerateObjectsUsingBlock:^(HMURLUploadTask *  _Nonnull uploadTask, NSUInteger idx, BOOL * _Nonnull stop) {
+            [uploadTask cancel];
+        }];
+        [strongSelf.runningUploadTask removeAllObjects];
+    });
+}
+
 - (void)invalidateAndCancel {
     [self cancelAllPendingUploadTask];
     [_runningUploadTask removeAllObjects];
@@ -160,10 +165,8 @@
 
 #pragma mark - Private
 
-- (HMURLUploadTask *)makeUploadTaskWithTask:(NSURLSessionDataTask *)task progress:(HMUploadProgressBlock)progressBlock completionBlock:(HMUploadCompletionBlock)completionBlock {
+- (HMURLUploadTask *)makeUploadTaskWithTask:(NSURLSessionDataTask *)task {
     HMURLUploadTask *hmUploadTask = [[HMURLUploadTask alloc] initWithTask:task];
-    hmUploadTask.progressBlock = progressBlock;
-    hmUploadTask.completionBlock = completionBlock;
     hmUploadTask.delegate = self;
     if (hmUploadTask) {
         [_uploadTaskMapping setObject:hmUploadTask forKey:@(hmUploadTask.taskIdentifier)];
@@ -177,7 +180,7 @@
         [_pendingUploadTask removeObjectAtIndex:0];
         [_runningUploadTask addObject:uploadTask];
         [uploadTask.uploadTask resume];
-        uploadTask.currentState = HMURLUploadStateRunning;
+        [self changeUploadState:HMURLUploadStateRunning ofUploadTask:uploadTask];
         NSLog(@"[HM] Upload Task - Start: %ld", uploadTask.taskIdentifier);
     }
 }
@@ -192,13 +195,6 @@
 - (void)cancelPendingUploadTask:(HMURLUploadTask *)uploadTask {
     dispatch_async(_completionQueue, ^{
         [_pendingUploadTask removeObject:uploadTask];
-    });
-}
-
-- (void)cancelRunningUploadTask:(HMURLUploadTask *)uploadTask {
-    dispatch_async(_completionQueue, ^{
-        uploadTask.currentState = HMURLUploadStateCancel;
-        [uploadTask.uploadTask cancel];
     });
 }
 
@@ -220,15 +216,26 @@
     }
 }
 
+- (void)changeUploadState:(HMURLUploadState)newState ofUploadTask:(HMURLUploadTask *)uploadTask {
+    if (_delegate) {
+        uploadTask.currentState = newState;
+        dispatch_async(mainQueue, ^{
+            if (_delegate) {
+                [_delegate hmURLSessionManager:self didChangeState:newState ofUploadTask:uploadTask];
+            }
+        });
+    }
+}
+
 #pragma mark - NSURLSessionDataDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(weakSelf.processingQueue, ^{
         HMURLUploadTask *uploadTask = _uploadTaskMapping[@(task.taskIdentifier)];
-        if (uploadTask) {
+        if (uploadTask && [_runningUploadTask containsObject:uploadTask]) {
             uploadTask.totalBytes = totalBytesExpectedToSend;
-            uploadTask.sendedBytes = totalBytesSent;
+            uploadTask.sentBytes = totalBytesSent;
             if (_delegate) {
                 dispatch_async(mainQueue, ^{
                     [_delegate hmURLSessionManager:self didProgressUpdate:uploadTask.uploadProgress ofUploadTask:uploadTask];
@@ -244,12 +251,15 @@
     dispatch_async(weakSelf.completionQueue, ^{
         __typeof__(self) strongSelf = weakSelf;
         HMURLUploadTask *uploadTask = strongSelf.uploadTaskMapping[@(task.taskIdentifier)];
-        if (uploadTask) {
+        if (uploadTask && [_runningUploadTask containsObject:uploadTask]) {
             if (uploadTask.currentState != HMURLUploadStateCancel) {
                 if (!error) {
-                    uploadTask.currentState = HMURLUploadStateCompleted;
+                    uploadTask.totalBytes = task.countOfBytesExpectedToSend;
+                    uploadTask.sentBytes = task.countOfBytesSent;
+                    [uploadTask completed];
+                    [self changeUploadState:HMURLUploadStateCompleted ofUploadTask:uploadTask];
                 } else {
-                    uploadTask.currentState = HMURLUploadStateFailed;
+                    [self changeUploadState:HMURLUploadStateFailed ofUploadTask:uploadTask];
                 }
             }
 
@@ -265,12 +275,28 @@
     });
 }
 
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
+    NSLog(@"[HM] HMURLSessionManager - Finished background task");
+    if (_delegate && [_delegate respondsToSelector:@selector(didFinishEventsForBackgroundHmURLSessionManager:)]) {
+        [_delegate didFinishEventsForBackgroundHmURLSessionManager:self];
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
+    NSLog(@"[HM] HMURLSessionManager - Invalid error: %@", error);
+    [self cancelAllRunningUploadTask];
+    [self cancelAllPendingUploadTask];
+    if (_delegate && [_delegate respondsToSelector:@selector(hmURLSessionManager:didBecomeInvalidWithError:)]) {
+        [_delegate hmURLSessionManager:self didBecomeInvalidWithError:error];
+    }
+}
+
 #pragma mark - HMURLUploadDelegate
 
 - (void)shouldToResumeHMURLUploadTask:(HMURLUploadTask *)uploadTask {
     if ([self checkRunningUploadTask:uploadTask]) {
         [uploadTask.uploadTask resume];
-        uploadTask.currentState = HMURLUploadStateRunning;
+        [self changeUploadState:HMURLUploadStateRunning ofUploadTask:uploadTask];
     } else if (![self checkPendingUploadTask:uploadTask]){
         [self addPendingUploadTask:uploadTask];
     }
@@ -279,7 +305,7 @@
 - (void)shouldToPauseHMURLUploadTask:(HMURLUploadTask *)uploadTask {
     if ([self checkRunningUploadTask:uploadTask]) {
         [uploadTask.uploadTask suspend];
-        uploadTask.currentState = HMURLUploadStatePaused;
+        [self changeUploadState:HMURLUploadStatePaused ofUploadTask:uploadTask];
     }
 }
 
@@ -288,7 +314,7 @@
         [self cancelPendingUploadTask:uploadTask];
     }
     [uploadTask.uploadTask cancel];
-    uploadTask.currentState = HMURLUploadStateCancel;
+    [self changeUploadState:HMURLUploadStateCancel ofUploadTask:uploadTask];
 }
 
 

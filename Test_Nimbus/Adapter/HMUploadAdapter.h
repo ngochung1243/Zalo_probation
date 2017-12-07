@@ -14,7 +14,7 @@
 
 @protocol HMUploadAdapterDelegate <NSObject>
 
-- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeStateUplTask:(HMURLUploadTask *)uploadTask;
+- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeState:(HMURLUploadState)newState  ofUploadTask:(HMURLUploadTask *)uploadTask;
 - (void)hmUploadAdapter:(HMUploadAdapter *)adapter didProgressUpdate:(float)progress ofUploadTask:(HMURLUploadTask *)uploadTask;
 - (void)hmUploadAdapter:(HMUploadAdapter *)adapter didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(NSError *)error;
 
@@ -28,13 +28,12 @@
 
 - (instancetype)initWithMaxConcurrentTaskCount:(NSUInteger)maxCount;
 
-- (void)uploadNumberOfTask:(NSUInteger)numberTasks
-      progressBlockPerTask:(HMUploadProgressBlock)progressBlock
-    completionBlockPerTask:(HMUploadCompletionBlock)completionBlock
-         completionHandler:(void(^)(void))handler;
+- (void)getAlreadyTask;
 
-- (HMURLUploadTask *)createUploadTaskWithProgress:(HMUploadProgressBlock)progressBlock
-                                  completionBlock:(HMUploadCompletionBlock)completionBlock;
+
+- (void)uploadNumberOfTask:(NSUInteger)numberTasks completionHandler:(void(^)(void))handler;
+
+- (HMURLUploadTask *)createUploadTask;
 
 - (void)subcriptTaskId:(NSUInteger)taskId withIndexPath:(NSIndexPath *)indexPath;
 - (void)unsubcriptTaskId:(NSUInteger)taskId;

@@ -33,20 +33,17 @@
 
 - (void)dealloc {
     NSLog(@"[HM] HMUploadAdapter - dealloc");
-    [_sessionManager invalidateAndCancel];
 }
 
-- (void)getAlreadyRunningTask {
+- (void)getAlreadyTask {
     _uploadTasks = [[_sessionManager getRunningUploadTasks] mutableCopy];
+    [_uploadTasks addObjectsFromArray:[_sessionManager getPendingUploadTasks]];
 }
 
-- (void)uploadNumberOfTask:(NSUInteger)numberTasks
-      progressBlockPerTask:(HMUploadProgressBlock)progressBlock
-    completionBlockPerTask:(HMUploadCompletionBlock)completionBlock
-         completionHandler:(void(^)(void))handler {
+- (void)uploadNumberOfTask:(NSUInteger)numberTasks completionHandler:(void(^)(void))handler {
     dispatch_async(_serialQueue, ^{
         for (int i = 0; i < numberTasks; i ++) {
-            HMURLUploadTask *uploadTask = [self createUploadTaskWithProgress:progressBlock completionBlock:completionBlock];
+            HMURLUploadTask *uploadTask = [self createUploadTask];
             if (uploadTask) {
                 [_uploadTasks addObject:uploadTask];
             }
@@ -61,7 +58,7 @@
     });
 }
 
-- (HMURLUploadTask *)createUploadTaskWithProgress:(HMUploadProgressBlock)progressBlock completionBlock:(HMUploadCompletionBlock)completionBlock {
+- (HMURLUploadTask *)createUploadTask {
     NSDictionary *headers = @{ @"content-type": @"multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
                                @"cache-control": @"no-cache",
                                @"postman-token": @"4b78a659-7aea-6641-2121-64e6d630bda1" };
@@ -94,19 +91,8 @@
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
     
-    HMURLUploadTask *uploadTask = [_sessionManager uploadTaskWithStreamRequest:request progress:progressBlock completionBlock:completionBlock];
+    HMURLUploadTask *uploadTask = [_sessionManager uploadTaskWithStreamRequest:request];
     
-    __weak __typeof__(self) weakSelf = self;
-    uploadTask.changeStateBlock = ^(HMURLUploadTask * _Nullable uploadTask) {
-        __typeof__(self) strongSelf = weakSelf;
-        if (uploadTask && [strongSelf.uploadTasks containsObject:uploadTask]) {
-            if (strongSelf.delegate) {
-                dispatch_async(mainQueue, ^{
-                    [strongSelf.delegate hmUploadAdapter:strongSelf didChangeStateUplTask:uploadTask];
-                });
-            }
-        }
-    };
     return uploadTask;
 }
 
@@ -133,6 +119,12 @@
 - (void)hmURLSessionManager:(HMURLSessionManger *)manager didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(NSError *)error {
     if (_delegate) {
         [_delegate hmUploadAdapter:self didCompleteUploadTask:uploadTask withError:error];
+    }
+}
+
+- (void)hmURLSessionManager:(HMURLSessionManger *)manager didChangeState:(HMURLUploadState)newState ofUploadTask:(HMURLUploadTask *)uploadTask {
+    if (_delegate) {
+        [_delegate hmUploadAdapter:self didChangeState:newState ofUploadTask:uploadTask];
     }
 }
 

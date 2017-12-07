@@ -17,12 +17,9 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        _uploadProgress = 0;
         _totalBytes = 0;
-        _sendedBytes = 0;
+        _sentBytes = 0;
         
-        _progressBlock = nil;
-        _completionBlock = nil;
         _currentState = HMURLUploadStateNotRunning;
     }
     return self;
@@ -60,23 +57,18 @@
     [_uploadTask cancel];
 }
 
-- (void)setCurrentState:(HMURLUploadState)currentState {
-    @synchronized(self) {
-        _currentState = currentState;
-        if (_changeStateBlock) {
-            dispatch_async(mainQueue, ^{
-                __weak __typeof__(self) weakSelf = self;
-                _changeStateBlock(weakSelf);
-            });
-        }
+- (void)completed {
+    if (_totalBytes == 0) {
+        _sentBytes = _totalBytes;
     }
+    _sentBytes = _totalBytes;
 }
 
 - (float)uploadProgress {
     if (_totalBytes == 0) {
         return 0;
     }
-    return _sendedBytes / _totalBytes;
+    return _sentBytes / _totalBytes;
 }
 
 @end

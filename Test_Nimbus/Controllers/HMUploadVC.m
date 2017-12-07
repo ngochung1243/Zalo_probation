@@ -36,6 +36,9 @@
     [self.view addSubview:_tableView];
     
     [self setupNavigation];
+    
+    [_adapter getAlreadyTask];
+    [_tableView reloadData];
 }
 
 - (void)dealloc {
@@ -50,14 +53,7 @@
 
 - (void)uploadAll {
     __weak __typeof__(self) weakSelf = self;
-    [_adapter uploadNumberOfTask:10 progressBlockPerTask:^(NSUInteger taskIdentifier, float progress) {
-        __typeof__(self) strongSelf = weakSelf;
-        
-    } completionBlockPerTask:^(NSUInteger taskIdentifier, NSURLResponse * _Nonnull reponse, NSError * _Nullable error) {
-        __typeof__(self) strongSelf = weakSelf;
-        NSLog(@"[HM] Upload Task - Completion: %ld : %@", taskIdentifier, error);
-        [strongSelf.adapter unsubcriptTaskId:taskIdentifier];
-    } completionHandler:^{
+    [_adapter uploadNumberOfTask:10 completionHandler:^{
         __typeof__(self) strongSelf = weakSelf;
         [strongSelf.tableView reloadData];
     }];
@@ -78,15 +74,6 @@
 
 #pragma mark - HMUploadDelegateAdapter
 
-- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeStateUplTask:(HMURLUploadTask *)uploadTask {
-    NSUInteger taskIndex = [_adapter.uploadTasks indexOfObject:uploadTask];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:taskIndex inSection:0];
-    HMUploadCell *cell = [_tableView cellForRowAtIndexPath:indexPath];
-    if (cell) {
-        [cell populateData:uploadTask];
-    }
-}
-
 - (void)hmUploadAdapter:(HMUploadAdapter *)adapter didProgressUpdate:(float)progress ofUploadTask:(HMURLUploadTask *)uploadTask {
     NSLog(@"[HM] Upload Task - Progress: %ld : %f", uploadTask.taskIdentifier, progress);
     NSIndexPath *indexPath = adapter.uploadSubcription[@(uploadTask.taskIdentifier)];
@@ -99,6 +86,15 @@
 - (void)hmUploadAdapter:(HMUploadAdapter *)adapter didCompleteUploadTask:(HMURLUploadTask *)uploadTask withError:(NSError *)error {
     NSLog(@"[HM] Upload Task - Completion: %ld : %@", uploadTask.taskIdentifier, error);
     [adapter unsubcriptTaskId:uploadTask.taskIdentifier];
+}
+
+- (void)hmUploadAdapter:(HMUploadAdapter *)adapter didChangeState:(HMURLUploadState)newState ofUploadTask:(HMURLUploadTask *)uploadTask {
+    NSUInteger taskIndex = [_adapter.uploadTasks indexOfObject:uploadTask];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:taskIndex inSection:0];
+    HMUploadCell *cell = [_tableView cellForRowAtIndexPath:indexPath];
+    if (cell) {
+        [cell populateData:uploadTask];
+    }
 }
 
 @end
