@@ -82,6 +82,10 @@
 #pragma mark - Public
 
 - (void)populateData:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return;
+    }
+    
     @synchronized(self) {
         _uploadTask = uploadTask;
         _taskIdentifier = uploadTask.taskIdentifier;

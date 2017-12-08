@@ -14,4 +14,17 @@
     return nil;
 }
 
+
+#pragma mark - Support for HMUploadViewController
+
++ (NSArray<NSString *> *)generateResourceFileName {
+    return @[@"GoTiengViet.dmg",
+             @"videoplayback.mp4",
+             @"fullhd.jpg", @"Compare.zip",
+             @"Request.zip",
+             @"Reboot.dmg"];
+}
+
+
+
 @end

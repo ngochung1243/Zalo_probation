@@ -38,7 +38,7 @@
         configuration.HTTPMaximumConnectionsPerHost = maxUploadTaskCount;
 
         _operationQueue = [[NSOperationQueue alloc] init];
-        _operationQueue.maxConcurrentOperationCount = 1;
+        _operationQueue.maxConcurrentOperationCount = 3;
         
         _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:_operationQueue];
 
@@ -53,7 +53,7 @@
         _networkManager.networkStatusChangeBlock = ^(HMNetworkStatus status) {
             __typeof__(self) strongSelf = weakSelf;
             if (strongSelf.networkManager.isReachable) {
-                [strongSelf resumeAllCurrentTask];
+                [strongSelf resumeAllCurrentTasks];
             } else {
                 [strongSelf suspendAllRunningTask];
             }
@@ -72,41 +72,76 @@
 
 #pragma mark - Public
 
-- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL {
+- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL priority:(HMURLUploadTaskPriority)priority {
+    if (!request || !fileURL) {
+        return nil;
+    }
+    
     @synchronized(self) {
         NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request fromFile:fileURL];
+        if (!uploadTask) {
+            return nil;
+        }
+        
         HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask];
+        if (hmUploadTask) {
+            hmUploadTask.priority = priority;
+        }
         return hmUploadTask;
     }
 }
 
-- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)data {
+- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)data priority:(HMURLUploadTaskPriority)priority {
+    if (!request || !data) {
+        return nil;
+    }
+    
     @synchronized(self) {
         NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request fromData:data];
+        if (!uploadTask) {
+            return nil;
+        }
+        
         HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask];
+        if (hmUploadTask) {
+            hmUploadTask.priority = priority;
+        }
         return hmUploadTask;
     }
 }
 
-- (HMURLUploadTask *)uploadTaskWithStreamRequest:(NSURLRequest *)request priority:(HMURLUploadTaskPriority)priority inQueue:(dispatch_queue_t)queue {
+- (HMURLUploadTask *)uploadTaskWithStreamRequest:(NSURLRequest *)request priority:(HMURLUploadTaskPriority)priority {
+    if (!request) {
+        return nil;
+    }
+    
     @synchronized(self) {
         NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithStreamedRequest:request];
+        if (!uploadTask) {
+            return nil;
+        }
+        
         HMURLUploadTask *hmUploadTask = [self makeUploadTaskWithTask:uploadTask];
-        hmUploadTask.priority = priority;
-        [hmUploadTask setCallbackQueue:queue];
+        if (hmUploadTask) {
+            hmUploadTask.priority = priority;
+        }
         return hmUploadTask;
     }
 }
 
 - (NSArray *)getRunningUploadTasks {
-    return _runningUploadTask;
+    @synchronized(self) {
+        return [_runningUploadTask copy];
+    }
 }
 
 - (HMPriorityQueue *)getPendingUploadTasks {
-    return _pendingUploadTask;
+    @synchronized(self) {
+        return _pendingUploadTask;
+    }
 }
 
-- (void)resumeAllCurrentTask {
+- (void)resumeAllCurrentTasks {
     if (_runningUploadTask.count == 0) {
         return;
     }
@@ -142,8 +177,12 @@
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(_completionQueue, ^{
         __typeof__(self) strongSelf = weakSelf;
-        HMURLUploadTask *uploadTask = [strongSelf.pendingUploadTask popObject];
-        [uploadTask cancel];
+        for (int i = 0; i < strongSelf.pendingUploadTask.count; i ++) {
+            HMURLUploadTask *uploadTask = [strongSelf.pendingUploadTask popObject];
+            if (uploadTask) {
+                [uploadTask cancel];
+            }
+        }
     });
 }
 
@@ -171,10 +210,14 @@
 #pragma mark - Private
 
 - (HMURLUploadTask *)makeUploadTaskWithTask:(NSURLSessionDataTask *)task {
+    if (!task) {
+        return nil;
+    }
+    
     HMURLUploadTask *hmUploadTask = [[HMURLUploadTask alloc] initWithTask:task];
-    hmUploadTask.delegate = self;
     if (hmUploadTask) {
-        [_uploadTaskMapping setObject:hmUploadTask forKey:@(hmUploadTask.taskIdentifier)];
+        hmUploadTask.delegate = self;
+        [_uploadTaskMapping setObject:hmUploadTask forKey:@(hmUploadTask.task.taskIdentifier)];
     }
     return hmUploadTask;
 }
@@ -182,28 +225,46 @@
 - (void)shouldIncreaseCurrentUploadTask {
     if (_pendingUploadTask.count > 0 && (_maxConcurrentUploadTask == -1 || _runningUploadTask.count < _maxConcurrentUploadTask)) {
         HMURLUploadTask *uploadTask = [_pendingUploadTask popObject];
-        [_runningUploadTask addObject:uploadTask];
-        [uploadTask.task resume];
-        [self changeUploadState:HMURLUploadStateRunning ofUploadTask:uploadTask];
-        NSLog(@"[HM] Upload Task - Start: %ld", uploadTask.taskIdentifier);
+        if (uploadTask) {
+            [_runningUploadTask addObject:uploadTask];
+            [uploadTask.task resume];
+            [self changeUploadState:HMURLUploadStateRunning ofUploadTask:uploadTask];
+            NSLog(@"[HM] Upload Task - Start: %ld", uploadTask.taskIdentifier);
+        }
     }
 }
 
 - (void)addPendingUploadTask:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return;
+    }
+    
+    __weak __typeof__(self) weakSelf = self;
     dispatch_async(_completionQueue, ^{
-        [_pendingUploadTask pushObject:uploadTask];
-        [self changeUploadState:HMURLUploadStatePending ofUploadTask:uploadTask];
-        [self shouldIncreaseCurrentUploadTask];
+        __typeof__(self) strongSelf = weakSelf;
+        [strongSelf.pendingUploadTask pushObject:uploadTask];
+        [strongSelf changeUploadState:HMURLUploadStatePending ofUploadTask:uploadTask];
+        [strongSelf shouldIncreaseCurrentUploadTask];
     });
 }
 
 - (void)cancelPendingUploadTask:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return;
+    }
+    
+    __weak __typeof__(self) weakSelf = self;
     dispatch_async(_completionQueue, ^{
-        [_pendingUploadTask removeObject:uploadTask];
+        __typeof__(self) strongSelf = weakSelf;
+        [strongSelf.pendingUploadTask removeObject:uploadTask];
     });
 }
 
 - (BOOL)checkPendingUploadTask:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return NO;
+    }
+    
     @synchronized(self) {
         if ([_pendingUploadTask containsObject:uploadTask]) {
             return YES;
@@ -213,6 +274,10 @@
 }
 
 - (BOOL)checkRunningUploadTask:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return NO;
+    }
+    
     @synchronized(self) {
         if ([_runningUploadTask containsObject:uploadTask]) {
             return YES;
@@ -222,67 +287,98 @@
 }
 
 - (void)changeUploadState:(HMURLUploadState)newState ofUploadTask:(HMURLUploadTask *)uploadTask {
-    uploadTask.currentState = newState;
+    if (!uploadTask) {
+        return;
+    }
     
-    NSArray<HMURLUploadChangeStateBlock> *changeStateCallbacks = [uploadTask getChangeStateCallbacks];
-    __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
-    dispatch_async([weakUploadTask getCallbackQueue], ^{
-        [changeStateCallbacks enumerateObjectsUsingBlock:^(HMURLUploadChangeStateBlock  _Nonnull changeStateBlock, NSUInteger idx, BOOL * _Nonnull stop) {
-            changeStateBlock(weakUploadTask, newState);
+    @synchronized(self) {
+        uploadTask.currentState = newState;
+        
+        NSArray<HMURLUploadCallbackEntry *> *cbEntries = [uploadTask getAllCallbackEntries];
+        if (!cbEntries) {
+            return;
+        }
+        
+        __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
+        [cbEntries enumerateObjectsUsingBlock:^(HMURLUploadCallbackEntry * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (obj.changeStateCallback) {
+                dispatch_async(obj.queue, ^{
+                    obj.changeStateCallback(weakUploadTask.taskIdentifier, newState);
+                });
+            }
         }];
-    });
+    }
 }
 
 #pragma mark - NSURLSessionDataDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
+    if (!task || bytesSent < 0 || totalBytesSent < 0 || totalBytesExpectedToSend < 0) {
+        return;
+    }
+    
     __weak __typeof__(self) weakSelf = self;
-    dispatch_async(weakSelf.processingQueue, ^{
-        HMURLUploadTask *uploadTask = _uploadTaskMapping[@(task.taskIdentifier)];
-        if (uploadTask && [_runningUploadTask containsObject:uploadTask]) {
+    dispatch_async(_processingQueue, ^{
+        __typeof__(self) strongSelf = weakSelf;
+        HMURLUploadTask *uploadTask = strongSelf.uploadTaskMapping[@(task.taskIdentifier)];
+        if (uploadTask && [strongSelf.runningUploadTask containsObject:uploadTask]) {
             uploadTask.totalBytes = totalBytesExpectedToSend;
             uploadTask.sentBytes = totalBytesSent;
-            NSArray<HMURLUploadProgressBlock> *progressCallbacks = [uploadTask getProgressCallbacks];
+            
+            NSArray<HMURLUploadCallbackEntry *> *cbEntries = [uploadTask getAllCallbackEntries];
+            if (!cbEntries) {
+                return;
+            }
+            
             __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
-            dispatch_async([weakUploadTask getCallbackQueue], ^{
-                [progressCallbacks enumerateObjectsUsingBlock:^(HMURLUploadProgressBlock  _Nonnull progressBlock, NSUInteger idx, BOOL * _Nonnull stop) {
-                    progressBlock(weakUploadTask, weakUploadTask.uploadProgress);
-                }];
-            });
+            [cbEntries enumerateObjectsUsingBlock:^(HMURLUploadCallbackEntry * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if (obj.progressCallback) {
+                    dispatch_async(obj.queue, ^{
+                        obj.progressCallback(weakUploadTask.taskIdentifier, weakUploadTask.uploadProgress);
+                    });
+                }
+            }];
         }
     });
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    if (!task) {
+        return;
+    }
+    
     __weak __typeof__(self) weakSelf = self;
-    dispatch_async(weakSelf.completionQueue, ^{
+    dispatch_async(_completionQueue, ^{
         __typeof__(self) strongSelf = weakSelf;
         HMURLUploadTask *uploadTask = strongSelf.uploadTaskMapping[@(task.taskIdentifier)];
-        if (uploadTask && [_runningUploadTask containsObject:uploadTask]) {
+        if (uploadTask && [strongSelf.runningUploadTask containsObject:uploadTask]) {
             if (uploadTask.currentState != HMURLUploadStateCancel) {
                 if (!error) {
                     uploadTask.totalBytes = task.countOfBytesExpectedToSend;
                     uploadTask.sentBytes = task.countOfBytesSent;
                     [uploadTask completed];
-                    [self changeUploadState:HMURLUploadStateCompleted ofUploadTask:uploadTask];
+                    [strongSelf changeUploadState:HMURLUploadStateCompleted ofUploadTask:uploadTask];
                 } else {
-                    [self changeUploadState:HMURLUploadStateFailed ofUploadTask:uploadTask];
+                    [strongSelf changeUploadState:HMURLUploadStateFailed ofUploadTask:uploadTask];
                 }
             }
-
-            NSArray<HMURLUploadCompletionBlock> *completionCallbacks = [uploadTask getCompletionCallbacks];
-            __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
-            dispatch_async([weakUploadTask getCallbackQueue], ^{
-                [completionCallbacks enumerateObjectsUsingBlock:^(HMURLUploadCompletionBlock  _Nonnull completionBlock, NSUInteger idx, BOOL * _Nonnull stop) {
-                    completionBlock(weakUploadTask, error);
-                }];
-            });
             
-            if (_delegate && [_delegate respondsToSelector:@selector(hmURLSessionManager:didCompleteUploadTask:withError:)]) {
-                dispatch_async(mainQueue, ^{
-                    [_delegate hmURLSessionManager:self didCompleteUploadTask:uploadTask withError:error];
-                });
+            NSArray<HMURLUploadCallbackEntry *> *cbEntries = [uploadTask getAllCallbackEntries];
+            if (!cbEntries) {
+                return;
             }
+            
+            __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
+            [cbEntries enumerateObjectsUsingBlock:^(HMURLUploadCallbackEntry * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if (obj.completionCallback) {
+                    dispatch_async(obj.queue, ^{
+                        obj.completionCallback(weakUploadTask.taskIdentifier, error);
+                    });
+                }
+            }];
+            
+            [uploadTask removeAllCallbackEntries];
+            strongSelf.uploadTaskMapping[@(uploadTask.task.taskIdentifier)] = nil;
             
             [strongSelf.runningUploadTask removeObject:uploadTask];
             [strongSelf shouldIncreaseCurrentUploadTask];
@@ -309,6 +405,10 @@
 #pragma mark - HMURLUploadDelegate
 
 - (void)shouldToResumeHMURLUploadTask:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return;
+    }
+    
     if ([self checkRunningUploadTask:uploadTask]) {
         [uploadTask.task resume];
         [self changeUploadState:HMURLUploadStateRunning ofUploadTask:uploadTask];
@@ -318,6 +418,10 @@
 }
 
 - (void)shouldToPauseHMURLUploadTask:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return;
+    }
+    
     if ([self checkRunningUploadTask:uploadTask]) {
         [uploadTask.task suspend];
         [self changeUploadState:HMURLUploadStatePaused ofUploadTask:uploadTask];
@@ -325,6 +429,10 @@
 }
 
 - (void)shouldToCancelHMURLUploadTask:(HMURLUploadTask *)uploadTask {
+    if (!uploadTask) {
+        return;
+    }
+    
     if ([self checkPendingUploadTask:uploadTask]) {
         [self cancelPendingUploadTask:uploadTask];
     }

@@ -8,7 +8,7 @@
 
 #import "HMCatalogViewController.h"
 #import "HMInviteContactController.h"
-#import "HMUploadVC.h"
+#import "HMUploadViewController.h"
 
 @interface HMCatalogViewController ()
 
@@ -27,7 +27,7 @@
                                  [_action attachToObject: [NITitleCellObject objectWithTitle:NSLocalizedString(@"Contact", nil)]
                                          navigationBlock:NIPushControllerAction([HMInviteContactController class])],
                                  [_action attachToObject: [NITitleCellObject objectWithTitle:NSLocalizedString(@"Upload", nil)]
-                                         navigationBlock:NIPushControllerAction([HMUploadVC class])]];
+                                         navigationBlock:NIPushControllerAction([HMUploadViewController class])]];
         _models = [[NITableViewModel alloc] initWithSectionedArray:cellContent delegate:(id)[NICellFactory class]];
         
     }

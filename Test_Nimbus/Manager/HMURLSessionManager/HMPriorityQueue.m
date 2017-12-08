@@ -25,21 +25,34 @@
 }
 
 - (void)pushObject:(id)object {
+    NSAssert(object, @"[HM] HMPriorityQueue - Can't add nil to priority queue");
     NSInteger addIndex = [self binaryFindIndexWithObject:object fromIndex:0 toIndex:_array.count];
     [_array insertObject:object atIndex:addIndex];
 }
 
 - (id)popObject {
+    if (_array.count == 0) {
+        return nil;
+    }
+    
     id object = [_array objectAtIndex:0];
     [_array removeObjectAtIndex:0];
     return object;
 }
 
 - (void)removeObject:(id)object {
+    if (!object) {
+        return;
+    }
+    
     [_array removeObject:object];
 }
 
 - (BOOL)containsObject:(id)object {
+    if (!object) {
+        return NO;
+    }
+    
     return [_array containsObject:object];
 }
 
@@ -62,10 +75,10 @@
         return toIndex;
     }
     
-    if ([_array[midIndex] compare:object] == NSOrderedAscending) {
+    if ([_array[midIndex] compare:object] == NSOrderedDescending) {
         return [self binaryFindIndexWithObject:object fromIndex:fromIndex toIndex:midIndex];
         
-    } else if ([_array[midIndex] compare:object] == NSOrderedDescending) {
+    } else if ([_array[midIndex] compare:object] == NSOrderedAscending) {
         return [self binaryFindIndexWithObject:object fromIndex:midIndex + 1 toIndex:toIndex];
         
     } else {

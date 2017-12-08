@@ -36,6 +36,10 @@
 		E508BF801FC6A04B009DDFE2 /* NIFoundationMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF671FC6A04A009DDFE2 /* NIFoundationMethods.m */; };
 		E508BF811FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF6D1FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m */; };
 		E5099E6A1FCED30E006DAB4C /* HMAlertUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5099E691FCED30E006DAB4C /* HMAlertUtils.m */; };
+		E51593C81FDA2CB000605453 /* HMURLUploadCallbackEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = E51593C71FDA2CB000605453 /* HMURLUploadCallbackEntry.m */; };
+		E51593CB1FDA72FD00605453 /* Reboot.dmg in Resources */ = {isa = PBXBuildFile; fileRef = E51593CA1FDA72FD00605453 /* Reboot.dmg */; };
+		E51593CD1FDA732700605453 /* Request.zip in Resources */ = {isa = PBXBuildFile; fileRef = E51593CC1FDA732700605453 /* Request.zip */; };
+		E51593CF1FDA739C00605453 /* Compare.zip in Resources */ = {isa = PBXBuildFile; fileRef = E51593CE1FDA739C00605453 /* Compare.zip */; };
 		E51895961FD636AE00383EC6 /* HMUploadCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E51895951FD636AE00383EC6 /* HMUploadCell.m */; };
 		E51895981FD6479200383EC6 /* fullhd.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E51895971FD6479200383EC6 /* fullhd.jpg */; };
 		E518959C1FD6495100383EC6 /* videoplayback.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = E518959B1FD6495100383EC6 /* videoplayback.mp4 */; };
@@ -67,7 +71,7 @@
 		E57DB92A1FCBF65F008587EE /* HMContactModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E57DB9291FCBF65F008587EE /* HMContactModel.m */; };
 		E586B65A1FD5757A005AD46B /* HMURLUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = E586B6581FD5757A005AD46B /* HMURLUploadTask.m */; };
 		E586B65B1FD5757A005AD46B /* HMURLSessionManger.m in Sources */ = {isa = PBXBuildFile; fileRef = E586B6591FD5757A005AD46B /* HMURLSessionManger.m */; };
-		E586B65E1FD57694005AD46B /* HMUploadVC.m in Sources */ = {isa = PBXBuildFile; fileRef = E586B65D1FD57694005AD46B /* HMUploadVC.m */; };
+		E586B65E1FD57694005AD46B /* HMUploadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E586B65D1FD57694005AD46B /* HMUploadViewController.m */; };
 		E5EDAFD31FC7C33E0030EDD6 /* UIImage+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFD21FC7C33E0030EDD6 /* UIImage+Utils.m */; };
 		E5EDAFDB1FC7DB040030EDD6 /* HMCatalogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFD71FC7DB040030EDD6 /* HMCatalogViewController.m */; };
 		E5EDAFEE1FC7F4190030EDD6 /* NICollectionViewActions.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EDAFE61FC7F4180030EDD6 /* NICollectionViewActions.m */; };
@@ -147,6 +151,11 @@
 		E508BF821FC6A0ED009DDFE2 /* Test_Nimbus.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Test_Nimbus.pch; sourceTree = "<group>"; };
 		E5099E681FCED30E006DAB4C /* HMAlertUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMAlertUtils.h; sourceTree = "<group>"; };
 		E5099E691FCED30E006DAB4C /* HMAlertUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMAlertUtils.m; sourceTree = "<group>"; };
+		E51593C61FDA2CB000605453 /* HMURLUploadCallbackEntry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMURLUploadCallbackEntry.h; sourceTree = "<group>"; };
+		E51593C71FDA2CB000605453 /* HMURLUploadCallbackEntry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMURLUploadCallbackEntry.m; sourceTree = "<group>"; };
+		E51593CA1FDA72FD00605453 /* Reboot.dmg */ = {isa = PBXFileReference; lastKnownFileType = file; path = Reboot.dmg; sourceTree = "<group>"; };
+		E51593CC1FDA732700605453 /* Request.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Request.zip; sourceTree = "<group>"; };
+		E51593CE1FDA739C00605453 /* Compare.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Compare.zip; sourceTree = "<group>"; };
 		E51895941FD636AE00383EC6 /* HMUploadCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMUploadCell.h; sourceTree = "<group>"; };
 		E51895951FD636AE00383EC6 /* HMUploadCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMUploadCell.m; sourceTree = "<group>"; };
 		E51895971FD6479200383EC6 /* fullhd.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = fullhd.jpg; sourceTree = "<group>"; };
@@ -212,8 +221,8 @@
 		E586B6571FD5757A005AD46B /* HMURLUploadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMURLUploadTask.h; sourceTree = "<group>"; };
 		E586B6581FD5757A005AD46B /* HMURLUploadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMURLUploadTask.m; sourceTree = "<group>"; };
 		E586B6591FD5757A005AD46B /* HMURLSessionManger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMURLSessionManger.m; sourceTree = "<group>"; };
-		E586B65C1FD57693005AD46B /* HMUploadVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMUploadVC.h; sourceTree = "<group>"; };
-		E586B65D1FD57694005AD46B /* HMUploadVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMUploadVC.m; sourceTree = "<group>"; };
+		E586B65C1FD57693005AD46B /* HMUploadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMUploadViewController.h; sourceTree = "<group>"; };
+		E586B65D1FD57694005AD46B /* HMUploadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMUploadViewController.m; sourceTree = "<group>"; };
 		E5EDAFD11FC7C33E0030EDD6 /* UIImage+Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Utils.h"; sourceTree = "<group>"; };
 		E5EDAFD21FC7C33E0030EDD6 /* UIImage+Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Utils.m"; sourceTree = "<group>"; };
 		E5EDAFD71FC7DB040030EDD6 /* HMCatalogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMCatalogViewController.m; sourceTree = "<group>"; };
@@ -297,7 +306,6 @@
 				E5EDAFD61FC7DAE70030EDD6 /* Controllers */,
 				E5EDAFD41FC7DAC70030EDD6 /* Views */,
 				E5F09A0D1FCBA45700048FD3 /* Models */,
-				E55F7B961FCE5B44008F1B85 /* Adapter */,
 				E5F4B1921FD0E4CA00C18259 /* Manager */,
 				E55F7B9D1FCE5F9F008F1B85 /* Common */,
 				E5EDAFDD1FC7DB3A0030EDD6 /* Resource */,
@@ -382,6 +390,9 @@
 		E518959A1FD647B300383EC6 /* image */ = {
 			isa = PBXGroup;
 			children = (
+				E51593CE1FDA739C00605453 /* Compare.zip */,
+				E51593CC1FDA732700605453 /* Request.zip */,
+				E51593CA1FDA72FD00605453 /* Reboot.dmg */,
 				E518959D1FD65A2300383EC6 /* GoTiengViet.dmg */,
 				E518959B1FD6495100383EC6 /* videoplayback.mp4 */,
 				E51895971FD6479200383EC6 /* fullhd.jpg */,
@@ -456,17 +467,6 @@
 			path = Category;
 			sourceTree = "<group>";
 		};
-		E55F7B961FCE5B44008F1B85 /* Adapter */ = {
-			isa = PBXGroup;
-			children = (
-				E55F7B971FCE5B66008F1B85 /* HMContactAdapter.h */,
-				E55F7B981FCE5B66008F1B85 /* HMContactAdapter.m */,
-				E51895A21FD6A1E000383EC6 /* HMUploadAdapter.h */,
-				E51895A31FD6A1E000383EC6 /* HMUploadAdapter.m */,
-			);
-			path = Adapter;
-			sourceTree = "<group>";
-		};
 		E55F7B9D1FCE5F9F008F1B85 /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -499,6 +499,8 @@
 		E586B6541FD57558005AD46B /* HMContactManager */ = {
 			isa = PBXGroup;
 			children = (
+				E55F7B971FCE5B66008F1B85 /* HMContactAdapter.h */,
+				E55F7B981FCE5B66008F1B85 /* HMContactAdapter.m */,
 				75271BFC1FD0C47C00605D09 /* HMContactManager.h */,
 				75271BFD1FD0C47C00605D09 /* HMContactManager.m */,
 			);
@@ -508,6 +510,8 @@
 		E586B6551FD5757A005AD46B /* HMURLSessionManager */ = {
 			isa = PBXGroup;
 			children = (
+				E51895A21FD6A1E000383EC6 /* HMUploadAdapter.h */,
+				E51895A31FD6A1E000383EC6 /* HMUploadAdapter.m */,
 				E586B6561FD5757A005AD46B /* HMURLSessionManger.h */,
 				E586B6591FD5757A005AD46B /* HMURLSessionManger.m */,
 				E586B6571FD5757A005AD46B /* HMURLUploadTask.h */,
@@ -516,6 +520,8 @@
 				E51895A01FD673E000383EC6 /* HMNetworkManager.m */,
 				E557DBCB1FD91EA90071EF3F /* HMPriorityQueue.h */,
 				E557DBCC1FD91EA90071EF3F /* HMPriorityQueue.m */,
+				E51593C61FDA2CB000605453 /* HMURLUploadCallbackEntry.h */,
+				E51593C71FDA2CB000605453 /* HMURLUploadCallbackEntry.m */,
 			);
 			path = HMURLSessionManager;
 			sourceTree = "<group>";
@@ -536,8 +542,8 @@
 				E5F4B1B91FD1477200C18259 /* Contact */,
 				E5EDAFD81FC7DB040030EDD6 /* HMCatalogViewController.h */,
 				E5EDAFD71FC7DB040030EDD6 /* HMCatalogViewController.m */,
-				E586B65C1FD57693005AD46B /* HMUploadVC.h */,
-				E586B65D1FD57694005AD46B /* HMUploadVC.m */,
+				E586B65C1FD57693005AD46B /* HMUploadViewController.h */,
+				E586B65D1FD57694005AD46B /* HMUploadViewController.m */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -744,12 +750,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				E508BF321FC69B74009DDFE2 /* LaunchScreen.storyboard in Resources */,
+				E51593CF1FDA739C00605453 /* Compare.zip in Resources */,
+				E51593CD1FDA732700605453 /* Request.zip in Resources */,
 				E51895981FD6479200383EC6 /* fullhd.jpg in Resources */,
 				E55F7B891FCE48AE008F1B85 /* Localizable.strings in Resources */,
 				E508BF2F1FC69B74009DDFE2 /* Assets.xcassets in Resources */,
 				E518959E1FD65A2300383EC6 /* GoTiengViet.dmg in Resources */,
 				E518959C1FD6495100383EC6 /* videoplayback.mp4 in Resources */,
 				E508BF2D1FC69B74009DDFE2 /* Main.storyboard in Resources */,
+				E51593CB1FDA72FD00605453 /* Reboot.dmg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -838,7 +847,7 @@
 				E508BF791FC6A04B009DDFE2 /* NIOperations.m in Sources */,
 				E5F09A191FCBA6E400048FD3 /* FileUtils.m in Sources */,
 				E5F32E141FCFE5460001577F /* HMContactQueueEntity.m in Sources */,
-				E586B65E1FD57694005AD46B /* HMUploadVC.m in Sources */,
+				E586B65E1FD57694005AD46B /* HMUploadViewController.m in Sources */,
 				E5EDAFF01FC7F4190030EDD6 /* NICollectionViewModel.m in Sources */,
 				E5EDAFD31FC7C33E0030EDD6 /* UIImage+Utils.m in Sources */,
 				E508BF7F1FC6A04B009DDFE2 /* NIInMemoryCache.m in Sources */,
@@ -866,6 +875,7 @@
 				E508B2971FCD05B2006207F8 /* HMTransparentSearchBar.m in Sources */,
 				E521C1E21FC6B0D7001EAC12 /* NITableViewActions.m in Sources */,
 				E508BF271FC69B74009DDFE2 /* AppDelegate.m in Sources */,
+				E51593C81FDA2CB000605453 /* HMURLUploadCallbackEntry.m in Sources */,
 				E508BF761FC6A04B009DDFE2 /* NIButtonUtilities.m in Sources */,
 				E508BF781FC6A04B009DDFE2 /* NICommonMetrics.m in Sources */,
 				E55F7B921FCE542D008F1B85 /* HMContactViewController.m in Sources */,

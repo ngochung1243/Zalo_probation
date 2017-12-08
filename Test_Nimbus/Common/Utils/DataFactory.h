@@ -12,4 +12,6 @@
 
 + (NSArray *)getAllContacts;
 
++ (NSArray<NSString *> *)generateResourceFileName;
+
 @end

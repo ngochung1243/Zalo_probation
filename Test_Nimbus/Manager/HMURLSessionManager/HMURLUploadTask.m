@@ -11,9 +11,11 @@
 
 @interface HMURLUploadTask()
 
-@property(strong, nonatomic) NSMutableArray<HMURLUploadProgressBlock> *progressCallbacks;
-@property(strong, nonatomic) NSMutableArray<HMURLUploadCompletionBlock> *completionCallbacks;
-@property(strong, nonatomic) NSMutableArray<HMURLUploadChangeStateBlock> *changeStateCallbacks;
+@property(strong, nonatomic) NSMutableArray<HMURLUploadCallbackEntry *> *progressCallbacks;
+@property(strong, nonatomic) NSMutableArray<HMURLUploadCallbackEntry *> *completionCallbacks;
+@property(strong, nonatomic) NSMutableArray<HMURLUploadCallbackEntry *> *changeStateCallbacks;
+
+@property(strong, nonatomic) NSMutableArray<HMURLUploadCallbackEntry *> *cbEntries;
 
 @property(strong, nonatomic) dispatch_queue_t callbackQueue;
 
@@ -23,6 +25,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
+        _taskIdentifier = [[[NSUUID UUID] UUIDString] hash];
         _totalBytes = 0;
         _sentBytes = 0;
         _currentState = HMURLUploadStateNotRunning;
@@ -31,6 +34,8 @@
         _progressCallbacks = [NSMutableArray new];
         _completionCallbacks = [NSMutableArray new];
         _changeStateCallbacks = [NSMutableArray new];
+        
+        _cbEntries = [NSMutableArray new];
     }
     return self;
 }
@@ -38,11 +43,16 @@
 - (instancetype)initWithTask:(NSURLSessionDataTask *)task {
     if (self = [self init]) {
         _task = task;
-        _taskIdentifier = task.taskIdentifier;
     }
     
     return self;
 }
+
+- (void)dealloc {
+    NSLog(@"[HM] HMURLUploadTask - dealloc");
+}
+
+#pragma mark - Public
 
 - (void)resume {
     if (_delegate) {
@@ -74,85 +84,59 @@
     _sentBytes = _totalBytes;
 }
 
-- (void)addProgressCallback:(HMURLUploadProgressBlock)progressBlock {
+- (NSArray<HMURLUploadCallbackEntry *> *)getAllCallbackEntries {
     @synchronized(self) {
-        if (progressBlock) {
-            [_progressCallbacks addObject:progressBlock];
-        }
+        return [_cbEntries copy];
     }
+}
+
+- (NSString *)addCallbacksWithProgressCB:(HMURLUploadProgressBlock)progressBlock
+                            completionCB:(HMURLUploadCompletionBlock)completionBlock
+                           changeStateCB:(HMURLUploadChangeStateBlock)changeStateBlock
+                                 inQueue:(dispatch_queue_t)queue {
     
-}
-
-- (void)addCompletionCallback:(HMURLUploadCompletionBlock)completionBlock {
     @synchronized(self) {
-        if (completionBlock) {
-            [_completionCallbacks addObject:completionBlock];
+        HMURLUploadCallbackEntry *cbEntry = [[HMURLUploadCallbackEntry alloc] initWithProgressCallback:progressBlock
+                                                                                    completionCallback:completionBlock
+                                                                                   changeStateCallback:changeStateBlock
+                                                                                              andQueue:queue];
+        if (!cbEntry) {
+            return nil;
         }
-    }
-    
-}
-
-- (void)addChangeStateCallback:(HMURLUploadChangeStateBlock)changeStateBlock {
-    @synchronized(self) {
-        if (changeStateBlock) {
-            [_changeStateCallbacks addObject:changeStateBlock];
-        }
+        
+        [_cbEntries addObject:cbEntry];
+        return cbEntry.unitId;
     }
 }
 
-- (void)removeProgressCallback:(HMURLUploadProgressBlock)progressBlock {
+- (void)removeCallbacksWithId:(NSString *)cbEntryId {
     @synchronized(self) {
-        if ([_progressCallbacks containsObject:progressBlock]) {
-            [_progressCallbacks removeObject:progressBlock];
-        }
-    }
-}
-
-- (void)removeCompletionCallback:(HMURLUploadCompletionBlock)completionBlock {
-    @synchronized(self) {
-        if ([_completionCallbacks containsObject:completionBlock]) {
-            [_completionCallbacks removeObject:completionBlock];
+        NSUInteger index = [_cbEntries indexOfObjectPassingTest:^BOOL(HMURLUploadCallbackEntry * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj.unitId isEqualToString:cbEntryId]) {
+                return YES;
+            }
+            
+            return NO;
+        }];
+        
+        if (index != NSNotFound) {
+            [_cbEntries removeObjectAtIndex:index];
         }
     }
 }
 
-- (void)removeChangeStateCallback:(HMURLUploadChangeStateBlock)changeStateBlock {
+- (void)removeAllCallbackEntries {
     @synchronized(self) {
-        if ([_changeStateCallbacks containsObject:changeStateBlock]) {
-            [_changeStateCallbacks removeObject:changeStateBlock];
-        }
+        [_cbEntries removeAllObjects];
     }
 }
 
-- (NSArray<HMURLUploadProgressBlock> *)getProgressCallbacks {
-    @synchronized(self) {
-        return [_progressCallbacks copy];
-    }
-}
-
-- (NSArray<HMURLUploadCompletionBlock> *)getCompletionCallbacks {
-    @synchronized(self) {
-        return [_completionCallbacks copy];
-    }
-}
-
-- (NSArray<HMURLUploadChangeStateBlock> *)getChangeStateCallbacks {
-    @synchronized(self) {
-        return [_changeStateCallbacks copy];
-    }
-}
-
-- (void)setCallbackQueue:(dispatch_queue_t)callbackQueue {
-    @synchronized(self) {
-        _callbackQueue = callbackQueue ? callbackQueue : mainQueue;
-    }
-}
-
-- (dispatch_queue_t)getCallbackQueue {
-    return _callbackQueue;
-}
 
 - (NSComparisonResult)compare:(HMURLUploadTask *)otherTask {
+    if (!otherTask) {
+        return NSOrderedAscending;
+    }
+    
     if (self.priority < otherTask.priority) {
         return NSOrderedAscending;
     } else if (self.priority > otherTask.priority) {
@@ -170,7 +154,5 @@
     }
     return _sentBytes / _totalBytes;
 }
-
-
 
 @end
