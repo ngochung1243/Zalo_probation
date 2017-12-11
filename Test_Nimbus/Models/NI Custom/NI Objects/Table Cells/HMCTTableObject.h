@@ -10,12 +10,7 @@
 #import "NimbusModels.h"
 #import <Contacts/Contacts.h>
 #import "HMContactModel.h"
-
-@protocol HMCellObject <NSObject>
-+ (instancetype)objectWithModel:(id)model;
-- (id)getModel;
-- (NSComparisonResult)compare:(id)object;
-@end
+#import "HMCellObject.h"
 
 @interface HMCTTableObject : NICellObject <HMCellObject>
 @property(strong, nonatomic) id model;

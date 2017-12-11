@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HMURLSessionManger.h"
+#import "HMURLUploadCompletionEntity.h"
 
 @class HMUploadAdapter;
 
@@ -64,7 +65,7 @@
 - (void)uploadTaskWithHost:(NSString * _Nonnull)hostString
                   filePath:(NSString * _Nonnull)filePath
                     header:(NSDictionary * _Nullable)header
-         completionHandler:(void(^ _Nullable)(HMURLUploadTask * _Nullable uploadTask))handler
+         completionHandler:(HMURLUploadCreationHandler _Nullable)handler
                    inQueue:(dispatch_queue_t _Nullable)queue;
 
 
@@ -83,7 +84,7 @@
 - (void)uploadTaskWithHost:(NSString * _Nonnull)hostString
                   filePath:(NSString * _Nonnull)filePath
                     header:(NSDictionary * _Nullable)header
-         completionHandler:(void(^ _Nullable)(HMURLUploadTask * _Nullable uploadTask))handler
+         completionHandler:(HMURLUploadCreationHandler _Nullable)handler
                   priority:(HMURLUploadTaskPriority)priority
                    inQueue:(dispatch_queue_t _Nullable)queue;
 

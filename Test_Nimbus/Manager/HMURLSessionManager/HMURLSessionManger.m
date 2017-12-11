@@ -20,7 +20,7 @@
 @property(strong, nonatomic) NSOperationQueue *operationQueue;
 @property(strong, nonatomic) NSMutableDictionary *uploadTaskMapping;
 @property(strong, nonatomic) HMPriorityQueue<HMURLUploadTask *> *pendingUploadTask;
-@property(strong, nonatomic) NSMutableArray *runningUploadTask;
+@property(strong, nonatomic) NSMutableArray<HMURLUploadTask *> *runningUploadTask;
 @property(strong, nonatomic) dispatch_queue_t processingQueue;
 @property(strong, nonatomic) dispatch_queue_t completionQueue;
 @property(strong, nonatomic) HMNetworkManager *networkManager;
@@ -48,13 +48,18 @@
         _maxConcurrentUploadTask = maxUploadTaskCount;
         
         _networkManager = [HMNetworkManager shareInstance];
+        [_networkManager startMonitoring];
         
         __weak __typeof__(self) weakSelf = self;
+        
+        //If network is unreachable, suspend all tasks to save them breaked. Resume them when network becomes to be reachable
         _networkManager.networkStatusChangeBlock = ^(HMNetworkStatus status) {
             __typeof__(self) strongSelf = weakSelf;
             if (strongSelf.networkManager.isReachable) {
+                NSLog(@"[HM] HMURLSessionManager - Resume all running task (Has network)");
                 [strongSelf resumeAllCurrentTasks];
             } else {
+                NSLog(@"[HM] HMURLSessionManager - Suspend all running task (No network)");
                 [strongSelf suspendAllRunningTask];
             }
         };
@@ -72,8 +77,19 @@
 
 #pragma mark - Public
 
-- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL priority:(HMURLUploadTaskPriority)priority {
+- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL priority:(HMURLUploadTaskPriority)priority error:(NSError **)error {
     if (!request || !fileURL) {
+        if (error) {
+            *error = [NSError errorWithDomain:HMURLSessionManagerDomain code:HMUploadTaskNilError userInfo:@{@"message": @"Host and file path mustn't be nil"}];
+        }
+        
+        return nil;
+    }
+    
+    if (!_networkManager.isReachable) {
+        if (error) {
+            *error = [NSError errorWithDomain:HMURLSessionManagerDomain code:HMUploadTaskNilError userInfo:@{@"message": @"Network unavailable"}];
+        }
         return nil;
     }
     
@@ -91,8 +107,18 @@
     }
 }
 
-- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)data priority:(HMURLUploadTaskPriority)priority {
+- (HMURLUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)data priority:(HMURLUploadTaskPriority)priority error:(NSError **)error {
     if (!request || !data) {
+        if (error) {
+            *error = [NSError errorWithDomain:HMURLSessionManagerDomain code:HMUploadTaskNilError userInfo:@{@"message": @"Host and file path mustn't be nil"}];
+        }
+        return nil;
+    }
+    
+    if (!_networkManager.isReachable) {
+        if (error) {
+            *error = [NSError errorWithDomain:HMURLSessionManagerDomain code:HMUploadTaskNilError userInfo:@{@"message": @"Network unavailable"}];
+        }
         return nil;
     }
     
@@ -110,8 +136,18 @@
     }
 }
 
-- (HMURLUploadTask *)uploadTaskWithStreamRequest:(NSURLRequest *)request priority:(HMURLUploadTaskPriority)priority {
+- (HMURLUploadTask *)uploadTaskWithStreamRequest:(NSURLRequest *)request priority:(HMURLUploadTaskPriority)priority error:(NSError **)error {
     if (!request) {
+        if (error) {
+            *error = [NSError errorWithDomain:HMURLSessionManagerDomain code:HMUploadTaskNilError userInfo:@{@"message": @"Host and file path mustn't be nil"}];
+        }
+        return nil;
+    }
+    
+    if (!_networkManager.isReachable) {
+        if (error) {
+            *error = [NSError errorWithDomain:HMURLSessionManagerDomain code:HMUploadTaskNilError userInfo:@{@"message": @"Network unavailable"}];
+        }
         return nil;
     }
     
@@ -222,6 +258,7 @@
     return hmUploadTask;
 }
 
+// Move pending task to running task and run it if amount of running tasks is less then the maximum value
 - (void)shouldIncreaseCurrentUploadTask {
     if (_pendingUploadTask.count > 0 && (_maxConcurrentUploadTask == -1 || _runningUploadTask.count < _maxConcurrentUploadTask)) {
         HMURLUploadTask *uploadTask = [_pendingUploadTask popObject];
@@ -257,6 +294,7 @@
     dispatch_async(_completionQueue, ^{
         __typeof__(self) strongSelf = weakSelf;
         [strongSelf.pendingUploadTask removeObject:uploadTask];
+        [uploadTask removeAllCallbackEntries];
     });
 }
 
@@ -300,6 +338,8 @@
         }
         
         __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
+        
+        //Call all change state calbacks of this task
         [cbEntries enumerateObjectsUsingBlock:^(HMURLUploadCallbackEntry * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             if (obj.changeStateCallback) {
                 dispatch_async(obj.queue, ^{
@@ -331,6 +371,7 @@
             }
             
             __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
+            //Call all progress calbacks of this task
             [cbEntries enumerateObjectsUsingBlock:^(HMURLUploadCallbackEntry * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 if (obj.progressCallback) {
                     dispatch_async(obj.queue, ^{
@@ -369,6 +410,7 @@
             }
             
             __weak __typeof__(uploadTask) weakUploadTask = uploadTask;
+            //Call all complete calbacks of this task
             [cbEntries enumerateObjectsUsingBlock:^(HMURLUploadCallbackEntry * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 if (obj.completionCallback) {
                     dispatch_async(obj.queue, ^{
@@ -395,6 +437,7 @@
 
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
     NSLog(@"[HM] HMURLSessionManager - Invalid error: %@", error);
+    [_networkManager stopMonitoring];
     [self cancelAllRunningUploadTask];
     [self cancelAllPendingUploadTask];
     if (_delegate && [_delegate respondsToSelector:@selector(hmURLSessionManager:didBecomeInvalidWithError:)]) {
@@ -409,10 +452,10 @@
         return;
     }
     
-    if ([self checkRunningUploadTask:uploadTask]) {
+    if ([self checkRunningUploadTask:uploadTask]) { //Only resume running tasks
         [uploadTask.task resume];
         [self changeUploadState:HMURLUploadStateRunning ofUploadTask:uploadTask];
-    } else if (![self checkPendingUploadTask:uploadTask]){
+    } else if (![self checkPendingUploadTask:uploadTask]){ //Add to pending list if the task is in 'not running' state
         [self addPendingUploadTask:uploadTask];
     }
 }
@@ -422,7 +465,7 @@
         return;
     }
     
-    if ([self checkRunningUploadTask:uploadTask]) {
+    if ([self checkRunningUploadTask:uploadTask]) { //Only pause running tasks
         [uploadTask.task suspend];
         [self changeUploadState:HMURLUploadStatePaused ofUploadTask:uploadTask];
     }
@@ -433,6 +476,9 @@
         return;
     }
     
+    //Only check whether the task is in pending list because the 'cancel' function only effects for tasks running.
+    //In 'didCompleteWithError' callback method, the task will be remove from running list so we don't need to remove it from that list here
+    //But we need to remove the task from pending list if it is not running
     if ([self checkPendingUploadTask:uploadTask]) {
         [self cancelPendingUploadTask:uploadTask];
     }

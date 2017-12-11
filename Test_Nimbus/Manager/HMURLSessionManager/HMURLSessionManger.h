@@ -10,8 +10,14 @@
 #import "HMURLUploadTask.h"
 #import "HMPriorityQueue.h"
 
+#define HMURLSessionManagerDomain               @"com.hungmai.Test_Nimbus.HMURLSessionManager"
+
 @class HMURLSessionManger;
 
+typedef NS_ENUM(NSInteger, HMUploadErrorCode) {
+    HMUploadTaskNilError,
+    HMUploadNoNetworkError
+};
 
 /**
  The session manager state protocol
@@ -74,7 +80,7 @@
  */
 - (HMURLUploadTask * _Nonnull)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
                                            fromFile:(NSURL * _Nonnull)fileURL
-                                           priority:(HMURLUploadTaskPriority)priority;
+                                           priority:(HMURLUploadTaskPriority)priority error:(NSError * _Nullable * _Nullable)error;
 
 
 /**
@@ -88,7 +94,7 @@
  */
 - (HMURLUploadTask * _Nonnull)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
                                            fromData:(NSData * _Nonnull)data
-                                           priority:(HMURLUploadTaskPriority)priority;
+                                           priority:(HMURLUploadTaskPriority)priority error:(NSError * _Nullable * _Nullable)error;
 
 
 /**
@@ -100,7 +106,7 @@
  @return An instance which can resume, pause, cancel the request
  */
 - (HMURLUploadTask * _Nonnull)uploadTaskWithStreamRequest:(NSURLRequest * _Nonnull)request
-                                                 priority:(HMURLUploadTaskPriority)priority;
+                                                 priority:(HMURLUploadTaskPriority)priority error:(NSError * _Nullable * _Nullable)error;
 
 
 /**

@@ -40,7 +40,6 @@
 		E51593CB1FDA72FD00605453 /* Reboot.dmg in Resources */ = {isa = PBXBuildFile; fileRef = E51593CA1FDA72FD00605453 /* Reboot.dmg */; };
 		E51593CD1FDA732700605453 /* Request.zip in Resources */ = {isa = PBXBuildFile; fileRef = E51593CC1FDA732700605453 /* Request.zip */; };
 		E51593CF1FDA739C00605453 /* Compare.zip in Resources */ = {isa = PBXBuildFile; fileRef = E51593CE1FDA739C00605453 /* Compare.zip */; };
-		E51895961FD636AE00383EC6 /* HMUploadCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E51895951FD636AE00383EC6 /* HMUploadCell.m */; };
 		E51895981FD6479200383EC6 /* fullhd.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E51895971FD6479200383EC6 /* fullhd.jpg */; };
 		E518959C1FD6495100383EC6 /* videoplayback.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = E518959B1FD6495100383EC6 /* videoplayback.mp4 */; };
 		E518959E1FD65A2300383EC6 /* GoTiengViet.dmg in Resources */ = {isa = PBXBuildFile; fileRef = E518959D1FD65A2300383EC6 /* GoTiengViet.dmg */; };
@@ -86,7 +85,21 @@
 		E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E0C1FCF9B880001577F /* UIImageView+Utils.m */; };
 		E5F32E111FCFADF60001577F /* HMImageMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */; };
 		E5F32E141FCFE5460001577F /* HMContactQueueEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */; };
+		E5F565BE1FDE250800AA75F7 /* HMUploadTableObject.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F565BD1FDE250800AA75F7 /* HMUploadTableObject.m */; };
+		E5F565C61FDE2B2700AA75F7 /* HMCellObject.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F565C51FDE2B2700AA75F7 /* HMCellObject.m */; };
+		E5F565D11FDE624900AA75F7 /* Test_NimbusTest.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F565D01FDE624900AA75F7 /* Test_NimbusTest.m */; };
+		E5F565DB1FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = E5F565DA1FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E5F565D31FDE624900AA75F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E508BF1A1FC69B74009DDFE2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E508BF211FC69B74009DDFE2;
+			remoteInfo = Test_Nimbus;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		084F7E65B8FD12D4EBD4744B /* Pods-Test_Nimbus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Test_Nimbus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Test_Nimbus/Pods-Test_Nimbus.release.xcconfig"; sourceTree = "<group>"; };
@@ -156,8 +169,6 @@
 		E51593CA1FDA72FD00605453 /* Reboot.dmg */ = {isa = PBXFileReference; lastKnownFileType = file; path = Reboot.dmg; sourceTree = "<group>"; };
 		E51593CC1FDA732700605453 /* Request.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Request.zip; sourceTree = "<group>"; };
 		E51593CE1FDA739C00605453 /* Compare.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Compare.zip; sourceTree = "<group>"; };
-		E51895941FD636AE00383EC6 /* HMUploadCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMUploadCell.h; sourceTree = "<group>"; };
-		E51895951FD636AE00383EC6 /* HMUploadCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMUploadCell.m; sourceTree = "<group>"; };
 		E51895971FD6479200383EC6 /* fullhd.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = fullhd.jpg; sourceTree = "<group>"; };
 		E518959B1FD6495100383EC6 /* videoplayback.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = videoplayback.mp4; sourceTree = "<group>"; };
 		E518959D1FD65A2300383EC6 /* GoTiengViet.dmg */ = {isa = PBXFileReference; lastKnownFileType = file; path = GoTiengViet.dmg; sourceTree = "<group>"; };
@@ -255,6 +266,15 @@
 		E5F32E101FCFADF60001577F /* HMImageMemoryCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMImageMemoryCache.m; sourceTree = "<group>"; };
 		E5F32E121FCFE5460001577F /* HMContactQueueEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactQueueEntity.h; sourceTree = "<group>"; };
 		E5F32E131FCFE5460001577F /* HMContactQueueEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactQueueEntity.m; sourceTree = "<group>"; };
+		E5F565BC1FDE250800AA75F7 /* HMUploadTableObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMUploadTableObject.h; sourceTree = "<group>"; };
+		E5F565BD1FDE250800AA75F7 /* HMUploadTableObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMUploadTableObject.m; sourceTree = "<group>"; };
+		E5F565C31FDE28D300AA75F7 /* HMCellObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMCellObject.h; sourceTree = "<group>"; };
+		E5F565C51FDE2B2700AA75F7 /* HMCellObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMCellObject.m; sourceTree = "<group>"; };
+		E5F565CE1FDE624900AA75F7 /* Test_NimbusTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Test_NimbusTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E5F565D01FDE624900AA75F7 /* Test_NimbusTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Test_NimbusTest.m; sourceTree = "<group>"; };
+		E5F565D21FDE624900AA75F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E5F565D91FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMURLUploadCompletionEntity.h; sourceTree = "<group>"; };
+		E5F565DA1FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMURLUploadCompletionEntity.m; sourceTree = "<group>"; };
 		FF9034A941D5FA6F68821235 /* libPods-Test_Nimbus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Test_Nimbus.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -266,6 +286,13 @@
 				E521C1EA1FC6B4FC001EAC12 /* AddressBook.framework in Frameworks */,
 				E521C1EB1FC6B4FC001EAC12 /* AddressBookUI.framework in Frameworks */,
 				5C45C24C735C17BB0459DDD9 /* libPods-Test_Nimbus.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E5F565CB1FDE624900AA75F7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +313,7 @@
 			children = (
 				E508BF3F1FC69FF5009DDFE2 /* NimbusFramework */,
 				E508BF241FC69B74009DDFE2 /* Test_Nimbus */,
+				E5F565CF1FDE624900AA75F7 /* Test_NimbusTest */,
 				E508BF231FC69B74009DDFE2 /* Products */,
 				E521C1E61FC6B4D5001EAC12 /* Frameworks */,
 				DD8DBA63EAFEDFA6C5D38FDE /* Pods */,
@@ -296,6 +324,7 @@
 			isa = PBXGroup;
 			children = (
 				E508BF221FC69B74009DDFE2 /* Test_Nimbus.app */,
+				E5F565CE1FDE624900AA75F7 /* Test_NimbusTest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -376,15 +405,6 @@
 				E508BF4C1FC6A048009DDFE2 /* UIResponder+NimbusCore.m */,
 			);
 			path = Core;
-			sourceTree = "<group>";
-		};
-		E51895931FD6369500383EC6 /* Cell */ = {
-			isa = PBXGroup;
-			children = (
-				E51895941FD636AE00383EC6 /* HMUploadCell.h */,
-				E51895951FD636AE00383EC6 /* HMUploadCell.m */,
-			);
-			path = Cell;
 			sourceTree = "<group>";
 		};
 		E518959A1FD647B300383EC6 /* image */ = {
@@ -510,18 +530,13 @@
 		E586B6551FD5757A005AD46B /* HMURLSessionManager */ = {
 			isa = PBXGroup;
 			children = (
+				E5F565DE1FDEA99B00AA75F7 /* Model */,
+				E5F565DD1FDEA97300AA75F7 /* Common */,
+				E5F565DC1FDEA95400AA75F7 /* Entity */,
 				E51895A21FD6A1E000383EC6 /* HMUploadAdapter.h */,
 				E51895A31FD6A1E000383EC6 /* HMUploadAdapter.m */,
 				E586B6561FD5757A005AD46B /* HMURLSessionManger.h */,
 				E586B6591FD5757A005AD46B /* HMURLSessionManger.m */,
-				E586B6571FD5757A005AD46B /* HMURLUploadTask.h */,
-				E586B6581FD5757A005AD46B /* HMURLUploadTask.m */,
-				E518959F1FD673E000383EC6 /* HMNetworkManager.h */,
-				E51895A01FD673E000383EC6 /* HMNetworkManager.m */,
-				E557DBCB1FD91EA90071EF3F /* HMPriorityQueue.h */,
-				E557DBCC1FD91EA90071EF3F /* HMPriorityQueue.m */,
-				E51593C61FDA2CB000605453 /* HMURLUploadCallbackEntry.h */,
-				E51593C71FDA2CB000605453 /* HMURLUploadCallbackEntry.m */,
 			);
 			path = HMURLSessionManager;
 			sourceTree = "<group>";
@@ -529,7 +544,6 @@
 		E5EDAFD41FC7DAC70030EDD6 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				E51895931FD6369500383EC6 /* Cell */,
 				E508B2951FCD05B2006207F8 /* HMTransparentSearchBar.h */,
 				E508B2961FCD05B2006207F8 /* HMTransparentSearchBar.m */,
 			);
@@ -610,8 +624,12 @@
 		E5EDAFF61FC80DD40030EDD6 /* Table Cells */ = {
 			isa = PBXGroup;
 			children = (
+				E5F565C31FDE28D300AA75F7 /* HMCellObject.h */,
+				E5F565C51FDE2B2700AA75F7 /* HMCellObject.m */,
 				E5EDAFFA1FC8175A0030EDD6 /* HMCTTableObject.h */,
 				E5EDAFFB1FC8175A0030EDD6 /* HMCTTableObject.m */,
+				E5F565BC1FDE250800AA75F7 /* HMUploadTableObject.h */,
+				E5F565BD1FDE250800AA75F7 /* HMUploadTableObject.m */,
 			);
 			path = "Table Cells";
 			sourceTree = "<group>";
@@ -682,6 +700,46 @@
 			path = Contact;
 			sourceTree = "<group>";
 		};
+		E5F565CF1FDE624900AA75F7 /* Test_NimbusTest */ = {
+			isa = PBXGroup;
+			children = (
+				E5F565D01FDE624900AA75F7 /* Test_NimbusTest.m */,
+				E5F565D21FDE624900AA75F7 /* Info.plist */,
+			);
+			path = Test_NimbusTest;
+			sourceTree = "<group>";
+		};
+		E5F565DC1FDEA95400AA75F7 /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				E5F565D91FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.h */,
+				E5F565DA1FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.m */,
+				E51593C61FDA2CB000605453 /* HMURLUploadCallbackEntry.h */,
+				E51593C71FDA2CB000605453 /* HMURLUploadCallbackEntry.m */,
+			);
+			path = Entity;
+			sourceTree = "<group>";
+		};
+		E5F565DD1FDEA97300AA75F7 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				E518959F1FD673E000383EC6 /* HMNetworkManager.h */,
+				E51895A01FD673E000383EC6 /* HMNetworkManager.m */,
+				E557DBCB1FD91EA90071EF3F /* HMPriorityQueue.h */,
+				E557DBCC1FD91EA90071EF3F /* HMPriorityQueue.m */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		E5F565DE1FDEA99B00AA75F7 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				E586B6571FD5757A005AD46B /* HMURLUploadTask.h */,
+				E586B6581FD5757A005AD46B /* HMURLUploadTask.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -705,6 +763,24 @@
 			productReference = E508BF221FC69B74009DDFE2 /* Test_Nimbus.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E5F565CD1FDE624900AA75F7 /* Test_NimbusTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E5F565D51FDE624900AA75F7 /* Build configuration list for PBXNativeTarget "Test_NimbusTest" */;
+			buildPhases = (
+				E5F565CA1FDE624900AA75F7 /* Sources */,
+				E5F565CB1FDE624900AA75F7 /* Frameworks */,
+				E5F565CC1FDE624900AA75F7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E5F565D41FDE624900AA75F7 /* PBXTargetDependency */,
+			);
+			name = Test_NimbusTest;
+			productName = Test_NimbusTest;
+			productReference = E5F565CE1FDE624900AA75F7 /* Test_NimbusTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -723,6 +799,11 @@
 							};
 						};
 					};
+					E5F565CD1FDE624900AA75F7 = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = E508BF211FC69B74009DDFE2;
+					};
 				};
 			};
 			buildConfigurationList = E508BF1D1FC69B74009DDFE2 /* Build configuration list for PBXProject "Test_Nimbus" */;
@@ -740,6 +821,7 @@
 			projectRoot = "";
 			targets = (
 				E508BF211FC69B74009DDFE2 /* Test_Nimbus */,
+				E5F565CD1FDE624900AA75F7 /* Test_NimbusTest */,
 			);
 		};
 /* End PBXProject section */
@@ -759,6 +841,13 @@
 				E518959C1FD6495100383EC6 /* videoplayback.mp4 in Resources */,
 				E508BF2D1FC69B74009DDFE2 /* Main.storyboard in Resources */,
 				E51593CB1FDA72FD00605453 /* Reboot.dmg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E5F565CC1FDE624900AA75F7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -824,6 +913,7 @@
 				E508BF6F1FC6A04B009DDFE2 /* NISnapshotRotation.m in Sources */,
 				E508BF741FC6A04B009DDFE2 /* NIActions.m in Sources */,
 				E521C1DE1FC6B0D7001EAC12 /* NITableViewModel.m in Sources */,
+				E5F565C61FDE2B2700AA75F7 /* HMCellObject.m in Sources */,
 				E508BF7D1FC6A04B009DDFE2 /* NIRuntimeClassModifications.m in Sources */,
 				E521C1E01FC6B0D7001EAC12 /* NIFormCellCatalog.m in Sources */,
 				E5EDAFFC1FC8175A0030EDD6 /* HMCTTableObject.m in Sources */,
@@ -837,6 +927,7 @@
 				E521C1DD1FC6B0D7001EAC12 /* NICellFactory.m in Sources */,
 				E5F32E0D1FCF9B880001577F /* UIImageView+Utils.m in Sources */,
 				E508BF811FC6A04B009DDFE2 /* NINonEmptyCollectionTesting.m in Sources */,
+				E5F565BE1FDE250800AA75F7 /* HMUploadTableObject.m in Sources */,
 				75271BFE1FD0C47C00605D09 /* HMContactManager.m in Sources */,
 				E557DBCD1FD91EA90071EF3F /* HMPriorityQueue.m in Sources */,
 				E51895A11FD673E000383EC6 /* HMNetworkManager.m in Sources */,
@@ -874,6 +965,7 @@
 				E55F7B991FCE5B66008F1B85 /* HMContactAdapter.m in Sources */,
 				E508B2971FCD05B2006207F8 /* HMTransparentSearchBar.m in Sources */,
 				E521C1E21FC6B0D7001EAC12 /* NITableViewActions.m in Sources */,
+				E5F565DB1FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.m in Sources */,
 				E508BF271FC69B74009DDFE2 /* AppDelegate.m in Sources */,
 				E51593C81FDA2CB000605453 /* HMURLUploadCallbackEntry.m in Sources */,
 				E508BF761FC6A04B009DDFE2 /* NIButtonUtilities.m in Sources */,
@@ -881,7 +973,6 @@
 				E55F7B921FCE542D008F1B85 /* HMContactViewController.m in Sources */,
 				E55F7BA11FCE5FC0008F1B85 /* HMErrorFactory.m in Sources */,
 				E55F7B951FCE59F7008F1B85 /* HMInviteContactController.m in Sources */,
-				E51895961FD636AE00383EC6 /* HMUploadCell.m in Sources */,
 				E5F32E111FCFADF60001577F /* HMImageMemoryCache.m in Sources */,
 				E521C1F51FC6E08B001EAC12 /* CNContact+Utils.m in Sources */,
 				E508BF711FC6A04B009DDFE2 /* NIViewRecycler.m in Sources */,
@@ -889,7 +980,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E5F565CA1FDE624900AA75F7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E5F565D11FDE624900AA75F7 /* Test_NimbusTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E5F565D41FDE624900AA75F7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E508BF211FC69B74009DDFE2 /* Test_Nimbus */;
+			targetProxy = E5F565D31FDE624900AA75F7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E508BF2B1FC69B74009DDFE2 /* Main.storyboard */ = {
@@ -1062,6 +1169,38 @@
 			};
 			name = Release;
 		};
+		E5F565D61FDE624900AA75F7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CL3BD6632V;
+				INFOPLIST_FILE = Test_NimbusTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "hungmai.com.vn.Test-NimbusTest";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Test_Nimbus.app/Test_Nimbus";
+			};
+			name = Debug;
+		};
+		E5F565D71FDE624900AA75F7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CL3BD6632V;
+				INFOPLIST_FILE = Test_NimbusTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "hungmai.com.vn.Test-NimbusTest";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Test_Nimbus.app/Test_Nimbus";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1079,6 +1218,15 @@
 			buildConfigurations = (
 				E508BF391FC69B75009DDFE2 /* Debug */,
 				E508BF3A1FC69B75009DDFE2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E5F565D51FDE624900AA75F7 /* Build configuration list for PBXNativeTarget "Test_NimbusTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E5F565D61FDE624900AA75F7 /* Debug */,
+				E5F565D71FDE624900AA75F7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

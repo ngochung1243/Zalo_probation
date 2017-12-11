@@ -68,6 +68,7 @@
 
 #pragma mark - Private
 
+//Find a location to insert a new object that does not change the priority of the list with binary search algorithm
 - (NSInteger)binaryFindIndexWithObject:(id)object fromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex {
     NSInteger midIndex = (toIndex - fromIndex) / 2 + fromIndex;
     

@@ -27,11 +27,8 @@
 }
 
 - (NSComparisonResult)compare:(id)object {
-    if ([object isKindOfClass:[HMCTTableObject class]]) {
-        return [self.model compare:((HMCTTableObject *)object).model];
-    }
-    
-    return NSOrderedSame;
+    NSAssert([object isKindOfClass:[HMCTTableObject class]], @"Can't compare with different object type");
+    return [self.model compare:((HMCTTableObject *)object).model];
 }
 
 @end

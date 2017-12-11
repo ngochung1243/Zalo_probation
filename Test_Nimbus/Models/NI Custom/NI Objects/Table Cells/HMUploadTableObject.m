@@ -1,21 +1,46 @@
 //
-//  HMUploadCell.m
+//  HMUploadTableObject.m
 //  Test_Nimbus
 //
-//  Created by CPU12068 on 12/5/17.
+//  Created by CPU12068 on 12/11/17.
 //  Copyright © 2017 CPU12068. All rights reserved.
 //
 
-#import "HMUploadCell.h"
+#import "HMUploadTableObject.h"
 #import "Masonry.h"
+
+#pragma mark - Table Object
+
+@implementation HMUploadTableObject
+
++ (instancetype)objectWithModel:(id)model {
+    HMUploadTableObject *object = [[HMUploadTableObject alloc] initWithCellClass:[HMUploadTableCell class]];
+    object.model = model;
+    return object;
+}
+
+- (id)getModel {
+    return self.model;
+}
+
+- (NSComparisonResult)compare:(id)object {
+    NSAssert([object isKindOfClass:[HMUploadTableObject class]], @"Can't compare with different object type");
+    
+    return [super compare:object];
+}
+
+@end
+
+
+
+#pragma mark - Table Cell
+
+@implementation HMUploadTableCell
 
 #define HMUploadCellBtnSize         CGSizeMake(20, 20)
 
-@implementation HMUploadCell
-
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
-        
         _taskIdentifier = 0;
         
         _progressView = [UIProgressView new];
@@ -79,12 +104,18 @@
     return self;
 }
 
-#pragma mark - Public
+- (BOOL)shouldUpdateCellWithObject:(id)object {
+    NSAssert([object isKindOfClass:[HMUploadTableObject class]], @"Can't make upload cell with different object type");
+    
+    HMURLUploadTask *uploadTask = ((HMUploadTableObject *)object).model;
+    [self populateData:uploadTask];
+    
+    return YES;
+}
 
 - (void)populateData:(HMURLUploadTask *)uploadTask {
-    if (!uploadTask) {
-        return;
-    }
+    NSAssert([uploadTask isKindOfClass:[HMURLUploadTask class]], @"Can't populate data with object not a HMURLUploadTask object");
+    NSAssert(uploadTask, @"Can't populate nil object");
     
     @synchronized(self) {
         _uploadTask = uploadTask;
@@ -113,7 +144,7 @@
                 _statusImv.hidden = NO;
                 _resumeBtn.hidden = NO;
                 _cancelBtn.hidden = NO;
-
+                
             default:
                 break;
         }

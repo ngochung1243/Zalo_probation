@@ -8,17 +8,18 @@
 
 #import "HMUploadViewController.h"
 #import "HMURLSessionManger.h"
-#import "HMUploadCell.h"
 #import "Constaint.h"
 #import "HMUploadAdapter.h"
 #import "Masonry.h"
 #import "HMAlertUtils.h"
 #import "DataFactory.h"
+#import "HMUploadTableObject.h"
 
-@interface HMUploadViewController () <UITableViewDataSource, UITextFieldDelegate>
+@interface HMUploadViewController () <UITextFieldDelegate>
 
 @property(strong, nonatomic) HMUploadAdapter *adapter;
 @property(strong, nonatomic) NSMutableArray<HMURLUploadTask *> *uploadTasks;
+@property(strong, nonatomic) NIMutableTableViewModel *mtblModels;
 
 @property(strong, nonatomic) UITableView *tableView;
 @property(strong, nonatomic) UIView *headerView;
@@ -42,6 +43,7 @@
     _adapter = [HMUploadAdapter shareInstance];
     
     _uploadTasks = [NSMutableArray new];
+    _mtblModels = [[NIMutableTableViewModel alloc] initWithListArray:[NSArray new] delegate:(id)[NICellFactory class]];
     
     // Do any additional setup after loading the view.
     _headerView = [UIView new];
@@ -99,8 +101,7 @@
     _tableView.backgroundColor = UIColor.whiteColor;
     _tableView.rowHeight = 60;
     _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
-    _tableView.dataSource = self;
-    [_tableView registerClass:[HMUploadCell class] forCellReuseIdentifier:[HMUploadCell description]];
+    _tableView.dataSource = _mtblModels;
     [self.view addSubview:_tableView];
     [_tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(_headerView.mas_bottom);
@@ -156,11 +157,14 @@
         }
         
         NSIndexSet *indexSet = [strongSelf.uploadTasks indexesOfObjectsPassingTest:^BOOL(HMURLUploadTask * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            return obj.taskIdentifier == taskIdentifier;
+            return (obj.currentState != HMURLUploadStateCompleted &&
+                     obj.currentState != HMURLUploadStateFailed &&
+                     obj.currentState != HMURLUploadStateCancel &&
+                    obj.taskIdentifier == taskIdentifier);
         }];
         
         [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
-            HMUploadCell *cell = [strongSelf.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
+            HMUploadTableCell *cell = [strongSelf.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
             if (cell) {
                 cell.progressView.progress = progress;
             }
@@ -180,7 +184,7 @@
         }];
         
         [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
-            HMUploadCell *cell = [strongSelf.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
+            HMUploadTableCell *cell = [strongSelf.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
             if (cell) {
                 [cell populateData:strongSelf.uploadTasks[idx]];
             }
@@ -200,7 +204,7 @@
         }];
         
         [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
-            HMUploadCell *cell = [strongSelf.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
+            HMUploadTableCell *cell = [strongSelf.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
             if (cell) {
                 [cell populateData:strongSelf.uploadTasks[idx]];
             }
@@ -216,11 +220,17 @@
     NSArray *alreadyTasks = [_adapter getAlreadyTask];
     if (alreadyTasks) {
         [_uploadTasks addObjectsFromArray:alreadyTasks];
+        
+        __weak __typeof__(self) weakSelf = self;
         [_uploadTasks enumerateObjectsUsingBlock:^(HMURLUploadTask * _Nonnull uploadTask, NSUInteger idx, BOOL * _Nonnull stop) {
-            [uploadTask addCallbacksWithProgressCB:_progressBlock
-                                      completionCB:_completionBlock
-                                     changeStateCB:_changeStateBlock
+            [uploadTask addCallbacksWithProgressCB:weakSelf.progressBlock
+                                      completionCB:weakSelf.completionBlock
+                                     changeStateCB:weakSelf.changeStateBlock
                                            inQueue:mainQueue];
+            HMUploadTableObject *object = [HMUploadTableObject objectWithModel:uploadTask];
+            if (object) {
+                [weakSelf.mtblModels addObject:object];
+            }
         }];
     }
 }
@@ -276,27 +286,35 @@
     NSString *filePath = [[NSBundle mainBundle] pathForResource:nameSeparate[0] ofType:nameSeparate[1]];
     
     __weak __typeof__(self) weakSelf = self;
-    [_adapter uploadTaskWithHost:hostString filePath:filePath header:nil completionHandler:^(HMURLUploadTask * _Nullable uploadTask) {
+    [_adapter uploadTaskWithHost:hostString filePath:filePath header:nil completionHandler:^(HMURLUploadTask * _Nullable uploadTask, NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
         if (uploadTask) {
             if (![strongSelf.uploadTasks containsObject:uploadTask]) {
-                [uploadTask addCallbacksWithProgressCB:_progressBlock
-                                          completionCB:_completionBlock
-                                         changeStateCB:_changeStateBlock
+                [uploadTask addCallbacksWithProgressCB:strongSelf.progressBlock
+                                          completionCB:strongSelf.completionBlock
+                                         changeStateCB:strongSelf.changeStateBlock
                                                inQueue:mainQueue];
             }
 
             [strongSelf.uploadTasks addObject:uploadTask];
+            
+            HMUploadTableObject *object = [HMUploadTableObject objectWithModel:uploadTask];
+            if (object) {
+                [strongSelf.mtblModels addObject:object];
+            }
+            
             [strongSelf.tableView beginUpdates];
             [strongSelf.tableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:strongSelf.uploadTasks.count - 1 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
             [strongSelf.tableView endUpdates];
+        } else if (error) {
+            NSLog(@"%@", error);
         }
 
     } priority:priority inQueue:mainQueue];
 }
 
 - (void)setMaxConcurrentTaskCount {
-    if ([_oldMaxCountLbl.text isEqualToString:_maxCountTf.text]) {
+    if ([_oldMaxCountLbl.text isEqualToString:_maxCountTf.text] || [_maxCountTf.text isEqualToString:@""]) {
         return;
     }
     
@@ -318,21 +336,6 @@
     }];
     [alert addAction:action];
     [self presentViewController:alert animated:YES completion:nil];
-}
-
-
-#pragma mark - UITableViewDelegate
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _uploadTasks.count;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    HMUploadCell *cell = [tableView dequeueReusableCellWithIdentifier:[HMUploadCell description] forIndexPath:indexPath];
-    HMURLUploadTask *uploadTask = _uploadTasks[indexPath.row];
-    [cell populateData:uploadTask];
-
-    return cell;
 }
 
 #pragma mark - UITextFieldDelegate

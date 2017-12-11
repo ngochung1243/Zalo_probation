@@ -29,6 +29,16 @@
       language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E5F565CD1FDE624900AA75F7"
+               BuildableName = "Test_NimbusTest.xctest"
+               BlueprintName = "Test_NimbusTest"
+               ReferencedContainer = "container:Test_Nimbus.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

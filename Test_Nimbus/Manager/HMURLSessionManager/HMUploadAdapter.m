@@ -9,9 +9,12 @@
 #import "HMUploadAdapter.h"
 #import "Constaint.h"
 
+#define AllowedMaxConcurrentTask                   1000
+
 @interface HMUploadAdapter() <HMURLSessionManagerDelegate>
 
 @property(strong, nonatomic) NSMutableDictionary *uploadTaskMapping;
+@property(strong, nonatomic) NSMutableDictionary *uploadTaskCreationPending;
 
 @property(strong, nonatomic) HMURLSessionManger *sessionManager;
 @property(strong, nonatomic) dispatch_queue_t serialQueue;
@@ -40,6 +43,7 @@
 - (instancetype)initWithMaxConcurrentTaskCount:(NSUInteger)maxCount {
     if (self = [super init]) {
         _uploadTaskMapping = [NSMutableDictionary new];
+        _uploadTaskCreationPending = [NSMutableDictionary new];
         
         _maxCount = maxCount;
         _sessionManager = [[HMURLSessionManger alloc] initWithMaxConcurrentTaskCount:maxCount andConfiguration:nil];
@@ -57,17 +61,13 @@
 #pragma mark - Public
 
 - (BOOL)setMaxConcurrentTaskCount:(NSUInteger)maxCount {
-    if (maxCount == NSNotFound) {
-        return NO;
-    }
-    
     @synchronized(self) {
         if (_uploadTaskMapping.count > 0) {
             NSLog(@"[HM] HMUploadAdapter - Can't set max concurrent task count because still having upload tasks running or pending");
             return NO;
         }
         
-        _maxCount = maxCount;
+        _maxCount = MIN(AllowedMaxConcurrentTask, maxCount);
         [_sessionManager invalidateAndCancel]; //Invalidate the session. It will re-init at 'URLsession:didBecomeInvalidWithError:' callback
         return YES;
     }
@@ -91,7 +91,7 @@
 - (void)uploadTaskWithHost:(NSString *)hostString
                   filePath:(NSString *)filePath
                     header:(NSDictionary *)header
-         completionHandler:(void(^)(HMURLUploadTask *))handler
+         completionHandler:(HMURLUploadCreationHandler)handler
                    inQueue:(dispatch_queue_t)queue {
     
     [self uploadTaskWithHost:hostString
@@ -105,16 +105,18 @@
 - (void)uploadTaskWithHost:(NSString * _Nonnull)hostString
                   filePath:(NSString * _Nonnull)filePath
                     header:(NSDictionary * _Nullable)header
-         completionHandler:(void(^ _Nullable)(HMURLUploadTask * _Nullable uploadTask))handler
+         completionHandler:(HMURLUploadCreationHandler)handler
                   priority:(HMURLUploadTaskPriority)priority
                    inQueue:(dispatch_queue_t _Nullable)queue {
     
     if (!hostString || !filePath) {
         if (handler) {
             [self dispatchAsyncWithQueue:queue block:^{
-                handler(nil);
+                NSError *error = [NSError errorWithDomain:@"" code:HMUploadTaskNilError userInfo:@{@"message": @"Host and file path mustn't be nil"}];
+                handler(nil, error);
             }];
         }
+        return;
     }
     
     //Get and check another task has same host & file path and return it if existed for the multiple-request purpose
@@ -122,52 +124,83 @@
     if (similarTask) {
         if (handler) {
             [self dispatchAsyncWithQueue:queue block:^{
-                handler(similarTask);
+                handler(similarTask, nil);
             }];
         }
         return;
     }
-    
-    dispatch_async(_serialQueue, ^{
-        NSURLRequest *request = [self makeRequestWithHost:hostString filePath:filePath header:header];
-        if (!request) {
-            if (handler) {
-                [self dispatchAsyncWithQueue:queue block:^{
-                    handler(nil);
-                }];
-            }
+
+    @synchronized(self) {
+        NSUInteger taskId = [self hashRequestWithHostString:hostString filePath:filePath];
+        NSString *pendingTasksString = [NSString stringWithFormat:@"%tu-list", taskId];
+        HMURLUploadCompletionEntity *completionEnt = [[HMURLUploadCompletionEntity alloc] initWithHandler:handler inQueue:queue];
+        
+        NSMutableArray *taskCreationEntities = _uploadTaskCreationPending[pendingTasksString];
+        if (!taskCreationEntities) {
+            taskCreationEntities = [NSMutableArray new];
+            _uploadTaskCreationPending[pendingTasksString] = taskCreationEntities;
+        }
+        
+        [taskCreationEntities addObject:completionEnt];
+        
+        if (_uploadTaskCreationPending[@(taskId)]) {
+            NSLog(@"Return task");
             return;
         }
-        HMURLUploadTask *uploadTask = [_sessionManager uploadTaskWithStreamRequest:request priority:priority];
-        if (uploadTask) {
-            uploadTask.host = hostString;
-            uploadTask.filePath = filePath;
-            
-            //Add one more callback for the upload task to remove the task from 'uploadTaskMapping' when this task is completed or canceled
-            __weak __typeof__(self) weakSelf = self;
-            [uploadTask addCallbacksWithProgressCB:nil
-                                      completionCB:^(NSUInteger taskIdentifier, NSError * _Nullable error) {
-                                          __typeof__(self) strongSelf = weakSelf;
-                                          strongSelf.uploadTaskMapping[@(taskIdentifier)] = nil;
-                                          
-                                      } changeStateCB:^(NSUInteger taskIdentifier, HMURLUploadState newState) {
-                                          __typeof__(self) strongSelf = weakSelf;
-                                          strongSelf.uploadTaskMapping[@(taskIdentifier)] = nil;
-                                      } inQueue:_serialQueue];
-            
-            NSUInteger hashHost = [self hashRequestWithHostString:hostString filePath:filePath]; //Hash the host link & file path to generate identifier for the task
-            if (hashHost != NSNotFound) {
-                uploadTask.taskIdentifier = hashHost;
-                [_uploadTaskMapping setObject:uploadTask forKey:@(hashHost)];
+        
+        dispatch_async(_serialQueue, ^{
+            _uploadTaskCreationPending[@(taskId)] = @(1);
+            NSURLRequest *request = [self makeRequestWithHost:hostString filePath:filePath header:header];
+            if (!request) {
+                //            if (handler) {
+                //                [self dispatchAsyncWithQueue:queue block:^{
+                //                    handler(nil);
+                //                }];
+                //            }
+                
+                @synchronized(self) {
+                    NSError *error = [NSError errorWithDomain:@"" code:HMUploadTaskNilError userInfo:@{@"message": @"NSURLRequest object is nil"}];
+                    [self releaseAllCreationRequestWithTaskId:taskId uploadTask:nil error:error];
+                }
+                
+                return;
             }
-        }
-
-        if (handler) {
-            [self dispatchAsyncWithQueue:queue block:^{
-                handler(uploadTask);
-            }];
-        }
-    });
+            
+            NSError *error = nil;
+            HMURLUploadTask *uploadTask = [_sessionManager uploadTaskWithStreamRequest:request priority:priority error:&error];
+            if (uploadTask) {
+                uploadTask.host = hostString;
+                uploadTask.filePath = filePath;
+                
+                //Add one more callback for the upload task to remove the task from 'uploadTaskMapping' when this task is completed or canceled
+                __weak __typeof__(self) weakSelf = self;
+                [uploadTask addCallbacksWithProgressCB:nil
+                                          completionCB:^(NSUInteger taskIdentifier, NSError * _Nullable error) {
+                                              __typeof__(self) strongSelf = weakSelf;
+                                              strongSelf.uploadTaskMapping[@(taskIdentifier)] = nil;
+                                              
+                                          } changeStateCB:^(NSUInteger taskIdentifier, HMURLUploadState newState) {
+                                              __typeof__(self) strongSelf = weakSelf;
+                                              if (newState == HMURLUploadStateCancel) {
+                                                  strongSelf.uploadTaskMapping[@(taskIdentifier)] = nil;
+                                              }
+                                          } inQueue:_serialQueue];
+                
+                uploadTask.taskIdentifier = taskId;
+                [_uploadTaskMapping setObject:uploadTask forKey:@(taskId)];
+            }
+            
+            @synchronized(self) {
+                [self releaseAllCreationRequestWithTaskId:taskId uploadTask:uploadTask error:error];
+            }
+            
+//            if (handler) {
+//                [self dispatchAsyncWithQueue:queue block:^{
+//                    handler(uploadTask);
+//                }];
+//            }
+        });
+    }
 }
 
 - (void)pauseAllTask {
@@ -238,6 +271,7 @@
     return [requestString hash];
 }
 
+//Get and check another task has same host & file path
 - (HMURLUploadTask *)getSimilarTaskWithHost:(NSString *)hostString filePath:(NSString *)filePath {
     if (!hostString || !filePath) {
         return nil;
@@ -246,6 +280,30 @@
     NSInteger taskId = [self hashRequestWithHostString:hostString filePath:filePath];
     HMURLUploadTask *similarTask = [_uploadTaskMapping objectForKey:@(taskId)];
     return similarTask;
+}
+
+- (void)releaseAllCreationRequestWithTaskId:(NSUInteger)taskId uploadTask:(HMURLUploadTask *)uploadTask error:(NSError *)error {
+    if (!_uploadTaskCreationPending[@(taskId)]) {
+        return;
+    }
+    
+    NSString *pendingTasksString = [NSString stringWithFormat:@"%tu-list", taskId];
+    NSMutableArray *taskCreationEntities = _uploadTaskCreationPending[pendingTasksString];
+    if (!taskCreationEntities) {
+        return;
+    }
+    
+    [taskCreationEntities enumerateObjectsUsingBlock:^(HMURLUploadCompletionEntity *  _Nonnull entity, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (entity.handler) {
+            [self dispatchAsyncWithQueue:entity.queue block:^{
+                entity.handler(uploadTask, error);
+            }];
+        }
+    }];
+    
+    [taskCreationEntities removeAllObjects];
+    _uploadTaskCreationPending[@(taskId)] = nil;
+    _uploadTaskCreationPending[pendingTasksString] = nil;
 }
 
 - (dispatch_queue_t)getValidQueueWithQueue:(dispatch_queue_t)queue {
@@ -262,6 +320,8 @@
     [self dispatchAsyncWithQueue:_serialQueue block:^{
         __typeof__(self) strongSelf = weakSelf;
         NSLog(@"[HM] HMUploadAdapter - Re-init session manager");
+        
+        //Re-init session manager when it is invalid
         strongSelf.sessionManager = [[HMURLSessionManger alloc] initWithMaxConcurrentTaskCount:strongSelf.maxCount andConfiguration:nil];
         strongSelf.sessionManager.delegate = strongSelf;
     }];

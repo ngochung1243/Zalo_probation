@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, HMURLUploadTaskPriority) {
  @param completionBlock The callback which will be call when the task is complete
  @param changeStateBlock The callback which will
  @param queue The queue which will be used to call asynchronously
- @return <#return value description#>
+ @return The callback entry identifier which is useful if you want to remove this callback entry
  */
 - (NSString * _Nullable)addCallbacksWithProgressCB:(HMURLUploadProgressBlock _Nullable)progressBlock
                                       completionCB:(HMURLUploadCompletionBlock _Nullable)completionBlock
