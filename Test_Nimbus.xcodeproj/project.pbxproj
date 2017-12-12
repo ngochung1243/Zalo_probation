@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5C45C24C735C17BB0459DDD9 /* libPods-Test_Nimbus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FF9034A941D5FA6F68821235 /* libPods-Test_Nimbus.a */; };
 		75271BFE1FD0C47C00605D09 /* HMContactManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 75271BFD1FD0C47C00605D09 /* HMContactManager.m */; };
+		E50545711FDFB4AD0051122D /* HMTaskTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = E50545701FDFB4AD0051122D /* HMTaskTimer.m */; };
 		E508B2971FCD05B2006207F8 /* HMTransparentSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = E508B2961FCD05B2006207F8 /* HMTransparentSearchBar.m */; };
 		E508BF271FC69B74009DDFE2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E508BF261FC69B74009DDFE2 /* AppDelegate.m */; };
 		E508BF2D1FC69B74009DDFE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E508BF2B1FC69B74009DDFE2 /* Main.storyboard */; };
@@ -106,6 +107,8 @@
 		5BB327A6784A5220F272C072 /* Pods-Test_Nimbus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Test_Nimbus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Test_Nimbus/Pods-Test_Nimbus.debug.xcconfig"; sourceTree = "<group>"; };
 		75271BFC1FD0C47C00605D09 /* HMContactManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMContactManager.h; sourceTree = "<group>"; };
 		75271BFD1FD0C47C00605D09 /* HMContactManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMContactManager.m; sourceTree = "<group>"; };
+		E505456F1FDFB4AD0051122D /* HMTaskTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMTaskTimer.h; sourceTree = "<group>"; };
+		E50545701FDFB4AD0051122D /* HMTaskTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMTaskTimer.m; sourceTree = "<group>"; };
 		E508B2951FCD05B2006207F8 /* HMTransparentSearchBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMTransparentSearchBar.h; sourceTree = "<group>"; };
 		E508B2961FCD05B2006207F8 /* HMTransparentSearchBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HMTransparentSearchBar.m; sourceTree = "<group>"; };
 		E508BF221FC69B74009DDFE2 /* Test_Nimbus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Test_Nimbus.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -532,7 +535,6 @@
 			children = (
 				E5F565DE1FDEA99B00AA75F7 /* Model */,
 				E5F565DD1FDEA97300AA75F7 /* Common */,
-				E5F565DC1FDEA95400AA75F7 /* Entity */,
 				E51895A21FD6A1E000383EC6 /* HMUploadAdapter.h */,
 				E51895A31FD6A1E000383EC6 /* HMUploadAdapter.m */,
 				E586B6561FD5757A005AD46B /* HMURLSessionManger.h */,
@@ -709,17 +711,6 @@
 			path = Test_NimbusTest;
 			sourceTree = "<group>";
 		};
-		E5F565DC1FDEA95400AA75F7 /* Entity */ = {
-			isa = PBXGroup;
-			children = (
-				E5F565D91FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.h */,
-				E5F565DA1FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.m */,
-				E51593C61FDA2CB000605453 /* HMURLUploadCallbackEntry.h */,
-				E51593C71FDA2CB000605453 /* HMURLUploadCallbackEntry.m */,
-			);
-			path = Entity;
-			sourceTree = "<group>";
-		};
 		E5F565DD1FDEA97300AA75F7 /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -727,6 +718,8 @@
 				E51895A01FD673E000383EC6 /* HMNetworkManager.m */,
 				E557DBCB1FD91EA90071EF3F /* HMPriorityQueue.h */,
 				E557DBCC1FD91EA90071EF3F /* HMPriorityQueue.m */,
+				E505456F1FDFB4AD0051122D /* HMTaskTimer.h */,
+				E50545701FDFB4AD0051122D /* HMTaskTimer.m */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -734,6 +727,10 @@
 		E5F565DE1FDEA99B00AA75F7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				E5F565D91FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.h */,
+				E5F565DA1FDE83EC00AA75F7 /* HMURLUploadCompletionEntity.m */,
+				E51593C61FDA2CB000605453 /* HMURLUploadCallbackEntry.h */,
+				E51593C71FDA2CB000605453 /* HMURLUploadCallbackEntry.m */,
 				E586B6571FD5757A005AD46B /* HMURLUploadTask.h */,
 				E586B6581FD5757A005AD46B /* HMURLUploadTask.m */,
 			);
@@ -912,6 +909,7 @@
 				E508BF7B1FC6A04B009DDFE2 /* NINetworkActivity.m in Sources */,
 				E508BF6F1FC6A04B009DDFE2 /* NISnapshotRotation.m in Sources */,
 				E508BF741FC6A04B009DDFE2 /* NIActions.m in Sources */,
+				E50545711FDFB4AD0051122D /* HMTaskTimer.m in Sources */,
 				E521C1DE1FC6B0D7001EAC12 /* NITableViewModel.m in Sources */,
 				E5F565C61FDE2B2700AA75F7 /* HMCellObject.m in Sources */,
 				E508BF7D1FC6A04B009DDFE2 /* NIRuntimeClassModifications.m in Sources */,

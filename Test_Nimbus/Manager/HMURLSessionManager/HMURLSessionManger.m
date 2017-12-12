@@ -9,6 +9,8 @@
 #import "HMURLSessionManger.h"
 #import "HMNetworkManager.h"
 #import "Constaint.h"
+#import "HMTaskTimer.h"
+#import <UIKit/UIKit.h>
 
 #define MaxConnection           100
 
@@ -24,6 +26,7 @@
 @property(strong, nonatomic) dispatch_queue_t processingQueue;
 @property(strong, nonatomic) dispatch_queue_t completionQueue;
 @property(strong, nonatomic) HMNetworkManager *networkManager;
+@property(strong, nonatomic) HMTaskTimer *taskTimer;
 
 @end
 
@@ -36,6 +39,7 @@
         }
         NSUInteger maxUploadTaskCount = MIN(maxCount, MaxConnection);
         configuration.HTTPMaximumConnectionsPerHost = maxUploadTaskCount;
+        configuration.timeoutIntervalForRequest = 60;
 
         _operationQueue = [[NSOperationQueue alloc] init];
         _operationQueue.maxConcurrentOperationCount = 3;
@@ -47,25 +51,45 @@
         _runningUploadTask = [NSMutableArray new];
         _maxConcurrentUploadTask = maxUploadTaskCount;
         
+        __weak __typeof__(self) weakSelf = self;
+        
         _networkManager = [HMNetworkManager shareInstance];
         [_networkManager startMonitoring];
-        
-        __weak __typeof__(self) weakSelf = self;
         
         //If network is unreachable, suspend all tasks to save them breaked. Resume them when network becomes to be reachable
         _networkManager.networkStatusChangeBlock = ^(HMNetworkStatus status) {
             __typeof__(self) strongSelf = weakSelf;
             if (strongSelf.networkManager.isReachable) {
-                NSLog(@"[HM] HMURLSessionManager - Resume all running task (Has network)");
+                NSLog(@"[HM] HMURLSessionManager - Network available - Resume all running task (Has network)");
                 [strongSelf resumeAllCurrentTasks];
             } else {
-                NSLog(@"[HM] HMURLSessionManager - Suspend all running task (No network)");
+                NSLog(@"[HM] HMURLSessionManager - Network unavailable - Suspend all running task (No network)");
                 [strongSelf suspendAllRunningTask];
             }
         };
         
         _processingQueue = dispatch_queue_create("com.hungmai.HMURLSessionManager.processingQueue", DISPATCH_QUEUE_CONCURRENT);
         _completionQueue = dispatch_queue_create("com.hungmai.HMURLSessionManager.completionQueue", DISPATCH_QUEUE_SERIAL);
+        
+        _taskTimer = [HMTaskTimer taskTimerWithTimeInterval:60 timeoutHandler:^{
+            [weakSelf cancelAllRunningUploadTask];
+        } inQueue:_completionQueue];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification * _Nonnull note)
+        {
+            [_taskTimer stopMonitor]; //Stop checking timeout when app becomes to background    
+        }];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification * _Nonnull note)
+        {
+            [self resumeAllCurrentTasks];
+        }];
     }
     
     return self;
@@ -73,6 +97,7 @@
 
 - (void)dealloc {
     NSLog(@"[HM] HMURLSessionManager - dealloc");
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Public
@@ -184,6 +209,7 @@
     
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(_completionQueue, ^{
+        [weakSelf.taskTimer startMonitor];
         __typeof__(self) strongSelf = weakSelf;
         [strongSelf.runningUploadTask enumerateObjectsUsingBlock:^(HMURLUploadTask *  _Nonnull uploadTask, NSUInteger idx, BOOL * _Nonnull stop) {
             [uploadTask.task resume];
@@ -266,6 +292,7 @@
             [_runningUploadTask addObject:uploadTask];
             [uploadTask.task resume];
             [self changeUploadState:HMURLUploadStateRunning ofUploadTask:uploadTask];
+            [_taskTimer startMonitor]; //Start checking timeout 
             NSLog(@"[HM] Upload Task - Start: %ld", uploadTask.taskIdentifier);
         }
     }
@@ -357,12 +384,17 @@
         return;
     }
     
+    [_taskTimer update];
+    
     __weak __typeof__(self) weakSelf = self;
-    dispatch_async(_processingQueue, ^{
+    dispatch_async(weakSelf.processingQueue, ^{
         __typeof__(self) strongSelf = weakSelf;
         HMURLUploadTask *uploadTask = strongSelf.uploadTaskMapping[@(task.taskIdentifier)];
         if (uploadTask && [strongSelf.runningUploadTask containsObject:uploadTask]) {
             uploadTask.totalBytes = totalBytesExpectedToSend;
+//            if (uploadTask.sentBytes >= totalBytesSent) {
+//                return;
+//            }
             uploadTask.sentBytes = totalBytesSent;
             
             NSArray<HMURLUploadCallbackEntry *> *cbEntries = [uploadTask getAllCallbackEntries];
@@ -387,6 +419,10 @@
     if (!task) {
         return;
     }
+    
+    NSLog(@"[HM] HMURLSessionManager - Complete task %tu - Error: %@", task.taskIdentifier, error);
+    
+    [_taskTimer update];
     
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(_completionQueue, ^{
@@ -485,6 +521,5 @@
     [uploadTask.task cancel];
     [self changeUploadState:HMURLUploadStateCancel ofUploadTask:uploadTask];
 }
-
 
 @end

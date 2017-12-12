@@ -78,7 +78,7 @@ typedef NS_ENUM(NSInteger, HMUploadErrorCode) {
  @param priority The priority
  @return An instance which can resume, pause, cancel the request
  */
-- (HMURLUploadTask * _Nonnull)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
+- (HMURLUploadTask * _Nullable)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
                                            fromFile:(NSURL * _Nonnull)fileURL
                                            priority:(HMURLUploadTaskPriority)priority error:(NSError * _Nullable * _Nullable)error;
 
@@ -92,7 +92,7 @@ typedef NS_ENUM(NSInteger, HMUploadErrorCode) {
  @param priority The priority
  @return An instance which can resume, pause, cancel the request
  */
-- (HMURLUploadTask * _Nonnull)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
+- (HMURLUploadTask * _Nullable)uploadTaskWithRequest:(NSURLRequest * _Nonnull)request
                                            fromData:(NSData * _Nonnull)data
                                            priority:(HMURLUploadTaskPriority)priority error:(NSError * _Nullable * _Nullable)error;
 
@@ -105,7 +105,7 @@ typedef NS_ENUM(NSInteger, HMUploadErrorCode) {
  @param priority The priority
  @return An instance which can resume, pause, cancel the request
  */
-- (HMURLUploadTask * _Nonnull)uploadTaskWithStreamRequest:(NSURLRequest * _Nonnull)request
+- (HMURLUploadTask * _Nullable)uploadTaskWithStreamRequest:(NSURLRequest * _Nonnull)request
                                                  priority:(HMURLUploadTaskPriority)priority error:(NSError * _Nullable * _Nullable)error;
 
 
@@ -114,7 +114,7 @@ typedef NS_ENUM(NSInteger, HMUploadErrorCode) {
 
  @return The array of tasks
  */
-- (NSArray * _Nonnull)getRunningUploadTasks;
+- (NSArray * _Nullable)getRunningUploadTasks;
 
 
 /**
@@ -122,7 +122,7 @@ typedef NS_ENUM(NSInteger, HMUploadErrorCode) {
 
  @return The array of tasks
  */
-- (HMPriorityQueue * _Nonnull)getPendingUploadTasks;
+- (HMPriorityQueue * _Nullable)getPendingUploadTasks;
 
 
 /**

@@ -10,13 +10,14 @@
 #import "HMCatalogViewController.h"
 #import "HMContactViewController.h"
 #import "HMImageMemoryCache.h"
+#import "HMUploadAdapter.h"
+#import "HMNetworkManager.h"
 
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -28,6 +29,17 @@
     [self.window makeKeyAndVisible];
     
     [HMImageMemoryCache shareInstance].maxNumberOfPixels = 1024 * 1024 * 10; //10m pixel
+    
+    //Set background fetch
+    [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+    
     return YES;
 }
+
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    if ([HMNetworkManager shareInstance].isReachable) {
+        [[HMUploadAdapter shareInstance] resumeAllTask];
+    }
+}
+
 @end

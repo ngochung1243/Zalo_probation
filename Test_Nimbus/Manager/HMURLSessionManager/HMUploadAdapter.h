@@ -47,7 +47,7 @@
 
  @return Tasks is running or pending handled by the adapter
  */
-- (NSArray<HMURLUploadTask *> * _Nonnull)getAlreadyTask;
+- (NSArray<HMURLUploadTask *> * _Nullable)getAlreadyTask;
 
 
 /**
@@ -89,6 +89,10 @@
                    inQueue:(dispatch_queue_t _Nullable)queue;
 
 
+/**
+ Resume all running tasks handled by the adapter
+ */
+- (void)resumeAllTask;
 
 /**
  Pause all running tasks handled by the adapter
